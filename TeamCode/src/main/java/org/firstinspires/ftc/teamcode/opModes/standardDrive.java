@@ -2,11 +2,10 @@ package org.firstinspires.ftc.teamcode.opModes;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.Gamepad;
 
 import org.firstinspires.ftc.teamcode.ProgrammingBoard;
 @TeleOp()
-public class MecanumDrive extends OpMode{
+public class standardDrive extends OpMode{
     private ProgrammingBoard board;
     @Override
     public void init(){
