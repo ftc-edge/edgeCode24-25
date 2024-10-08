@@ -17,13 +17,9 @@ public class standardDrive extends OpMode{
     }
 
     public void doMove(){
-        double forward = 0;
-        double horizontal = 0;
-        double pivot = 0;
-
-        forward = gamepad1.left_stick_y;
-        horizontal = gamepad1.left_stick_x;
-        pivot = gamepad1.right_stick_x;
+        double forward = gamepad1.left_stick_y;
+        double horizontal = gamepad1.left_stick_x;
+        double pivot = gamepad1.left_stick_x;
 
         board.FLmotor.setPower(pivot + (-forward + horizontal));
         board.FRmotor.setPower(pivot + (-forward - horizontal));
