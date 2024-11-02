@@ -10,7 +10,7 @@ import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 import java.util.concurrent.TimeUnit;
 
 @TeleOp()
-public class SensorHuskyLens extends LinearOpMode {
+public class huskyLensTest extends LinearOpMode {
 
     private final int READ_PERIOD = 1;
 
@@ -106,8 +106,4 @@ public class SensorHuskyLens extends LinearOpMode {
             telemetry.update();
         }
     }
-}
-
-public class huskyLensTest {
-
 }
