@@ -10,11 +10,11 @@ import org.firstinspires.ftc.robotcore.internal.system.Deadline;
 import java.util.concurrent.TimeUnit;
 
 @TeleOp()
-public class SensorHuskyLens extends LinearOpMode {
+public class huskyLensTest extends LinearOpMode {
 
     private final int READ_PERIOD = 1;
 
-    private HuskyLens huskyLens;
+    public HuskyLens huskyLens;
 
     @Override
     public void runOpMode()
@@ -88,6 +88,7 @@ public class SensorHuskyLens extends LinearOpMode {
              *
              * Returns an empty array if no objects are seen.
              */
+
             HuskyLens.Block[] blocks = huskyLens.blocks();
             telemetry.addData("Block count", blocks.length);
             for (int i = 0; i < blocks.length; i++) {
@@ -106,8 +107,4 @@ public class SensorHuskyLens extends LinearOpMode {
             telemetry.update();
         }
     }
-}
-
-public class huskyLensTest {
-
 }
