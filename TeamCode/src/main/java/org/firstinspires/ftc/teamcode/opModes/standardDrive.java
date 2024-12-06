@@ -3,10 +3,8 @@ package org.firstinspires.ftc.teamcode.opModes;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
-import org.firstinspires.ftc.teamcode.opModes.huskyLensTest;
+import org.firstinspires.ftc.teamcode.tests.huskyLensTest;
 import com.qualcomm.hardware.dfrobot.HuskyLens;
-import org.firstinspires.ftc.robotcore.internal.system.Deadline;
-import java.util.concurrent.TimeUnit;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @TeleOp()
@@ -15,6 +13,7 @@ public class standardDrive extends OpMode {
     public DcMotor FLmotor;
     public DcMotor BRmotor;
     public DcMotor BLmotor;
+    public HuskyLens huskyLens;
     private huskyLensTest hl;
 
     public Servo clawShoulder;
@@ -23,7 +22,11 @@ public class standardDrive extends OpMode {
     public Servo clawFinger1;
     public Servo clawFinger2;
 
-    HuskyLens.Block[] blocks = hl.huskyLens.blocks();
+    HuskyLens.Block[] blocks;
+
+    public void blockInitialize() {
+        blocks = huskyLens.blocks();
+    }
 
     @Override
     public void init() {
@@ -39,10 +42,10 @@ public class standardDrive extends OpMode {
         BLmotor = hardwareMap.get(DcMotor.class, "BLmotor");
         BLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        hl.huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
+        huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
 
         hl.runOpMode();
-        hl.huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
+        huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
 
         clawShoulder = hardwareMap.get(Servo.class, "clawShoulder");
 
