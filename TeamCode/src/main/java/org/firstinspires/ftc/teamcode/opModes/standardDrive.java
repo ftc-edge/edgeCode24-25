@@ -14,7 +14,10 @@ public class standardDrive extends OpMode {
     public DcMotor BRmotor;
     public DcMotor BLmotor;
     public HuskyLens huskyLens;
-    private huskyLensTest hl;
+    //private huskyLensTest hl;
+
+    public DcMotor backOdo;
+    public DcMotor forwardOdo;
 
     public Servo clawShoulder;
     public Servo clawElbow;
@@ -22,14 +25,26 @@ public class standardDrive extends OpMode {
     public Servo clawFinger1;
     public Servo clawFinger2;
 
+    float forward = 0;
+    float horizontal = 0;
+    float pivot = 0;
+
     //HuskyLens.Block[] blocks;
 
     //public void blockInitialize() {
-//        blocks = huskyLens.blocks();
-//    }
+    //     blocks = huskyLens.blocks();
+    // }
 
     @Override
     public void init() {
+        /*
+
+        Forward Facing Odometry | Exp. Hub 0
+        Front Sideways Odometry | Cont. Hub 0 | ***OCCUPIED***
+        Backward Facing Odometry | Cont. Hub 3
+
+        */
+
         FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
         FRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
@@ -42,12 +57,16 @@ public class standardDrive extends OpMode {
         BLmotor = hardwareMap.get(DcMotor.class, "BLmotor");
         BLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
-        huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
+        backOdo = hardwareMap.get(DcMotor.class, "backOdo");
 
-        hl.runOpMode();
-        huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
+        forwardOdo = hardwareMap.get(DcMotor.class, "forwardOdo");
 
-        clawShoulder = hardwareMap.get(Servo.class, "clawShoulder");
+        // huskyLens = hardwareMap.get(HuskyLens.class, "huskylens");
+
+        // hl.runOpMode();
+        // huskyLens.selectAlgorithm(HuskyLens.Algorithm.COLOR_RECOGNITION);
+
+        // clawShoulder = hardwareMap.get(Servo.class, "clawShoulder");
 
 
     }
@@ -64,18 +83,18 @@ public class standardDrive extends OpMode {
 
 
     public void doMove() {
-        float forward;
-        float horizontal;
-        float pivot;
 
         forward = gamepad1.left_stick_y;
         horizontal = gamepad1.left_stick_x;
         pivot = gamepad1.right_stick_x;
 
-        FRmotor.setPower(pivot + (-forward + horizontal));
-        BRmotor.setPower(pivot + (-forward - horizontal));
+        FRmotor.setPower(pivot + (forward - horizontal));
+        BRmotor.setPower(pivot + (forward + horizontal));
         FLmotor.setPower(pivot + (-forward - horizontal));
         BLmotor.setPower(pivot + (-forward + horizontal));
+
+        telemetry.addData("pivot", pivot);
+        telemetry.update();
     }
 
     //public void doSlides(){
