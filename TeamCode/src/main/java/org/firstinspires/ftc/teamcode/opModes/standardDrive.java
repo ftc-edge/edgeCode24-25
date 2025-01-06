@@ -49,6 +49,7 @@ public class standardDrive extends OpMode {
     boolean wristREADY = false;
     boolean pressedB = false; // for only getting one event per press
     boolean pressedA = false;
+    boolean isPassing = false;
 
     double timeElapsed = -1;
     // HuskyLens.Block[] blocks;
@@ -109,7 +110,8 @@ public class standardDrive extends OpMode {
     }
 
     public void loop() {
-        driverIntake();
+        servoControl();
+        autoIntake();
         clawFinger1.setPosition(0.96);
         doMove();
         // if(gamepad1.a) {
@@ -200,9 +202,9 @@ public class standardDrive extends OpMode {
 
 
     private void servoTesting(){
-        if(gamepad1.x){
-            passoff();
-        }
+        // if(gamepad1.x){
+        //     passoff();
+        // }
 
         // passoffTimer();
         // stopCRmotorTimer();
@@ -213,29 +215,31 @@ public class standardDrive extends OpMode {
         telemetry.addData("Elbow Position", elbPosition);
         telemetry.addData("Finger", fingPosition);
         telemetry.addData("shoulder", shoPosition);
+        telemetry.addData("Pressed A", pressedA);
+        telemetry.addData("Wrist", wriPosition);
         telemetry.update();
     }
 
-    private void passoff(){
-        // get Block
-        // move intake arm
-        // Elbow from 0.00 to 0.93
-        // Wrist to 0.99
-        // move slide arm
-        clawFinger2.setPosition(0);
-        clawShoulder.setPosition(0);
-        clawElbow.setPosition(0.93);
-        clawWrist.setPosition(0.99);
-        passoffStartTime = getTime();
-    }
+    // private void passoff(){
+    //     // get Block
+    //     // move intake arm
+    //     // Elbow from 0.00 to 0.93
+    //     // Wrist to 0.99
+    //     // move slide arm
+    //     clawFinger2.setPosition(0);
+    //     clawShoulder.setPosition(0);
+    //     clawElbow.setPosition(0.93);
+    //     clawWrist.setPosition(0.99);
+    //     passoffStartTime = getTime();
+    // }
 
-    private void passoffTimer(){
-        if(getTime()-passoffStartTime > 3000){
-            clawWrist.setPosition(0.16);
-            clawElbow.setPosition(0.00);
-            return;
-        }
-    }
+    // private void passoffTimer(){
+    //     if(getTime()-passoffStartTime > 3000){
+    //         clawWrist.setPosition(0.16);
+    //         clawElbow.setPosition(0.00);
+    //         return;
+    //     }
+    // }
 
     private void setPower(float angle){
 
@@ -251,7 +255,7 @@ public class standardDrive extends OpMode {
         }
     }
 
-    private void driverIntake(){
+    private void servoControl(){
         if(gamepad1.right_bumper){
             shoPosition -= 0.005;
         }else if(gamepad1.left_bumper){
@@ -293,8 +297,28 @@ public class standardDrive extends OpMode {
         clawShoulder.setPosition(shoPosition);
         clawElbow.setPosition(elbPosition);
         clawWrist.setPosition(wriPosition);
-        clawFinger2.setPosition(fingPosition);
+        clawFinger2.setPosition(0);
 
+    }
+
+    private void autoIntake(){
+        if(gamepad1.x && !isPassing){
+            if(shoPosition!= 0.4f && elbPosition != 1){
+                fingPosition = 1;
+                wriPosition = 0.15f;
+                elbPosition = 1;
+                shoPosition = 0.4f;
+            }else{
+                fingPosition = 0;
+                wriPosition = 1;
+                elbPosition = 0.35f;
+                shoPosition = 0.33f;
+            }
+        }else if(!gamepad1.x){
+            isPassing = false;
+        }
+
+        //clawShoulder.setPosition(0.4);
     }
 
 }
