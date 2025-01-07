@@ -120,7 +120,6 @@ public class standardDrive extends OpMode {
         // if(gamepad1.b) {
         //     wristReady();
         // }
-        servoTesting();
     }
 
     private long getTime(){
