@@ -56,7 +56,7 @@ public class standardDrive extends OpMode {
     double CRmotorRotationTime;
 
     boolean wristREADY = false;
-    Dictionary<Char, Boolean> buttonPressed = new Hashtable<>();
+    Map<Character, Boolean> buttonPressed = new HashMap<>();
     boolean isPassing = false;
 
 
@@ -67,7 +67,7 @@ public class standardDrive extends OpMode {
     //      blocks = huskyLens.blocks();
     //  }
 
-    public Boolean pressed(Char button){
+    public Boolean pressed(char button){
         Boolean gamepadState;
         switch (button) {
             case 'y':
