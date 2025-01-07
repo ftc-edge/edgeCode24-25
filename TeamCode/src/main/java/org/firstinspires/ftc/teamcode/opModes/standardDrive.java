@@ -12,53 +12,46 @@ import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 
 @TeleOp()
 public class standardDrive extends OpMode {
-
-    /* MOTORS */
-
     private DcMotor FRmotor;
     private DcMotor FLmotor;
     private DcMotor BRmotor;
     private DcMotor BLmotor;
 
-    /* SENSORS */
 
-    public HuskyLens huskyLens;
+    // public HuskyLens huskyLens;
     private huskyLensTest hl;
-    public DcMotor backOdo;
-    public DcMotor forwardOdo;
 
-    /* CLAW (Servo) */
-    
+    // public DcMotor backOdo;
+    // public DcMotor forwardOdo;
+
     public Servo clawShoulder;
     public Servo clawElbow;
     public Servo clawWrist;
     public Servo clawFinger1;
     public Servo clawFinger2;
-
-    /* OUTTAKE (Servo) */
-
-    public CRServo outShoulder;
+    public Servo outShoulder;
     public Servo outWrist;
     public Servo outFinger1;
     public Servo outFinger2;
 
-    
     float forward = 0;
     float horizontal = 0;
     float pivot = 0;
     float shoPosition = 0.5f;
     float elbPosition = 0;
     float wriPosition = 0;
-    float fingPosition = 0;
+    float fing1Position = 0.5f;
+    float fing2Position = 0;
+    float outShoPosition = 1;
 
     long passoffStartTime;
-    long CRmotorStartTime = getTime() + 3000000;
-    double CRmotorRotationTime;
+    // long CRmotorStartTime = getTime() + 3000000;
+    // double CRmotorRotationTime;
 
     boolean wristREADY = false;
-    Map<Character, Boolean> buttonPressed = new HashMap<>();
+    boolean pressedY = false; // for only getting one event per press
+    boolean pressedA = false;
     boolean isPassing = false;
-
 
     double timeElapsed = -1;
     // HuskyLens.Block[] blocks;
@@ -144,12 +137,10 @@ public class standardDrive extends OpMode {
         clawFinger1 = hardwareMap.get(Servo.class, "clawFinger1");
         clawFinger2 = hardwareMap.get(Servo.class, "clawFinger2");
 
-        outShoulder = hardwareMap.get(CRServo.class, "outShoulder");
+        outShoulder = hardwareMap.get(Servo.class, "outShoulder");
         outWrist = hardwareMap.get(Servo.class, "outWrist");
         outFinger1 = hardwareMap.get(Servo.class, "outFinger1");
         outFinger2 = hardwareMap.get(Servo.class, "outFinger2");
-
-        buttonPressed.put("A",false);
 
 
     }
@@ -157,7 +148,6 @@ public class standardDrive extends OpMode {
     public void loop() {
         servoControl();
         autoIntake();
-        clawFinger1.setPosition(0.96);
         doMove();
         // if(gamepad1.a) {
         //     shoulderSet(blockDecide(), clawBlock());
@@ -165,6 +155,7 @@ public class standardDrive extends OpMode {
         // if(gamepad1.b) {
         //     wristReady();
         // }
+        telemetry();
     }
 
     private long getTime(){
@@ -173,8 +164,8 @@ public class standardDrive extends OpMode {
 
     public void doMove() {
 
-        // if(gamepad1.y) {
-        //     setPower((float) Math.PI/-4);
+        // if(gamepad1.dpad_left) {
+        //     addAngle(1);
         // }
 
         forward = gamepad1.left_stick_y;
@@ -245,23 +236,17 @@ public class standardDrive extends OpMode {
     // }
 
 
-    private void servoTesting(){
-        // if(gamepad1.x){
-        //     passoff();
-        // }
-
-        // passoffTimer();
-        // stopCRmotorTimer();
+    private void telemetry(){
 
         telemetry.addData("time", getTime());
         telemetry.addData("CRmotor", timeElapsed);
-        telemetry.addData("Calculated Rotation Time", String.valueOf(CRmotorRotationTime));
         telemetry.addData("Elbow Position", elbPosition);
-        telemetry.addData("Finger", fingPosition);
         telemetry.addData("shoulder", shoPosition);
         telemetry.addData("Pressed A", pressedA);
         telemetry.addData("Pressed B", gamepad1.b);
         telemetry.addData("Wrist", wriPosition);
+        telemetry.addData("Outtake Shoulder", outShoPosition);
+        telemetry.addData("Finger", fing2Position);
         telemetry.update();
     }
 
@@ -286,19 +271,20 @@ public class standardDrive extends OpMode {
     //     }
     // }
 
-    private void setPower(float angle){
+    // private void addAngle(float angle){
 
-        CRmotorRotationTime = Math.pow(Math.abs(angle)/16, 0.3562) * 1000;
-        outShoulder.setPower((angle > 0 ? -1 : 1) * 0.25);
-        CRmotorStartTime = getTime();
-    }
+    //     CRmotorRotationTime = Math.pow(Math.abs(angle)/16, 0.3562) * 1000;
+    //     outShoulder.setPower((angle > 0 ? -1 : 1) * 0.25);
+    //     CRmotorStartTime = getTime();
+    //     stopCRmotorTimer();
+    // }
 
-    private void stopCRmotorTimer(){
-        if(getTime()-CRmotorStartTime > CRmotorRotationTime && timeElapsed == -1){
-            timeElapsed = getTime()-CRmotorStartTime;
-            outShoulder.setPower(0);
-        }
-    }
+    // private void stopCRmotorTimer(){
+    //     if(getTime()-CRmotorStartTime > CRmotorRotationTime && timeElapsed == -1){
+    //         timeElapsed = getTime()-CRmotorStartTime;
+    //         outShoulder.setPower(0);
+    //     }
+    // }
 
     private void servoControl(){
         if(gamepad1.right_bumper){
@@ -317,42 +303,58 @@ public class standardDrive extends OpMode {
             elbPosition = 0;
         }
 
-        if(pressed("a")){
+        if(gamepad1.a && !pressedA){
             if(wriPosition != 1){
                 wriPosition = 1;
             }
             else{
                 wriPosition = 0.15f;
             }
+            pressedA = true;
+        } else if (!gamepad1.a) {
+            pressedA = false;
         }
-
-        if(pressed("y")){
-            if(fingPosition != 1){
-                fingPosition = 1;
+        if(gamepad1.y && !pressedY){
+            if(fing1Position != 0.5f){
+                fing1Position = 0.5f;
+                fing2Position = 0.98f;
             }else{
-                fingPosition = 0;
+                fing1Position = 0.8f;
+                fing2Position = 0.4f;
             }
+            pressedY = true;
+        } else if (!gamepad1.b) {
+            pressedY = false;
+        }
+        if(gamepad1.dpad_left){
+            fing2Position += 0.001;
+        }else if(gamepad1.dpad_right){
+            fing2Position -= 0.001;
         }
 
         clawShoulder.setPosition(shoPosition);
         clawElbow.setPosition(elbPosition);
         clawWrist.setPosition(wriPosition);
-        clawFinger2.setPosition(fingPosition);
-
+        clawFinger1.setPosition(fing1Position);
+        clawFinger2.setPosition(fing2Position);
+        outShoulder.setPosition(outShoPosition);
     }
 
     private void autoIntake(){
-        if(pressed('x')){
+        if(gamepad1.x && !isPassing){
             if(shoPosition!= 0.45f && elbPosition != 0.8f){
                 wriPosition = 0.15f;
                 elbPosition = 0.8f;
                 shoPosition = 0.45f;
             }else{
-                fingPosition = 1;
+                fing1Position = 1;
+                fing2Position = 1;
                 wriPosition = 0.75f;
                 elbPosition = 0.35f;
                 shoPosition = 0.33f;
             }
+        }else if(!gamepad1.x){
+            isPassing = false;
         }
 
         //clawShoulder.setPosition(0.4);
