@@ -47,7 +47,7 @@ public class standardDrive extends OpMode {
     double CRmotorRotationTime;
 
     boolean wristREADY = false;
-    boolean pressedB = false; // for only getting one event per press
+    boolean pressedY = false; // for only getting one event per press
     boolean pressedA = false;
     boolean isPassing = false;
 
@@ -129,9 +129,9 @@ public class standardDrive extends OpMode {
 
     public void doMove() {
 
-        if(gamepad1.y) {
-            setPower((float) Math.PI/-4);
-        }
+        // if(gamepad1.y) {
+        //     setPower((float) Math.PI/-4);
+        // }
 
         forward = gamepad1.left_stick_y;
         horizontal = gamepad1.left_stick_x;
@@ -216,6 +216,7 @@ public class standardDrive extends OpMode {
         telemetry.addData("Finger", fingPosition);
         telemetry.addData("shoulder", shoPosition);
         telemetry.addData("Pressed A", pressedA);
+        telemetry.addData("Pressed B", gamepad1.b);
         telemetry.addData("Wrist", wriPosition);
         telemetry.update();
     }
@@ -283,34 +284,33 @@ public class standardDrive extends OpMode {
         } else if (!gamepad1.a) {
             pressedA = false;
         }
-        if(gamepad1.b && !pressedB){
-            if(fingPosition == 0){
+        if(gamepad1.y && !pressedY){
+            if(fingPosition != 1){
                 fingPosition = 1;
             }else{
                 fingPosition = 0;
             }
-            pressedB = true;
+            pressedY = true;
         } else if (!gamepad1.b) {
-            pressedB = false;
+            pressedY = false;
         }
 
         clawShoulder.setPosition(shoPosition);
         clawElbow.setPosition(elbPosition);
         clawWrist.setPosition(wriPosition);
-        clawFinger2.setPosition(0);
+        clawFinger2.setPosition(fingPosition);
 
     }
 
     private void autoIntake(){
         if(gamepad1.x && !isPassing){
-            if(shoPosition!= 0.4f && elbPosition != 1){
-                fingPosition = 1;
+            if(shoPosition!= 0.45f && elbPosition != 0.8f){
                 wriPosition = 0.15f;
-                elbPosition = 1;
-                shoPosition = 0.4f;
+                elbPosition = 0.8f;
+                shoPosition = 0.45f;
             }else{
-                fingPosition = 0;
-                wriPosition = 1;
+                fingPosition = 1;
+                wriPosition = 0.75f;
                 elbPosition = 0.35f;
                 shoPosition = 0.33f;
             }
