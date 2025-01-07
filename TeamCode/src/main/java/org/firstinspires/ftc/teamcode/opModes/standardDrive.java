@@ -12,28 +12,37 @@ import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 
 @TeleOp()
 public class standardDrive extends OpMode {
+
+    /* MOTORS */
+
     private DcMotor FRmotor;
     private DcMotor FLmotor;
     private DcMotor BRmotor;
     private DcMotor BLmotor;
 
+    /* SENSORS */
 
-    // public HuskyLens huskyLens;
+    public HuskyLens huskyLens;
     private huskyLensTest hl;
+    public DcMotor backOdo;
+    public DcMotor forwardOdo;
 
-    // public DcMotor backOdo;
-    // public DcMotor forwardOdo;
-
+    /* CLAW (Servo) */
+    
     public Servo clawShoulder;
     public Servo clawElbow;
     public Servo clawWrist;
     public Servo clawFinger1;
     public Servo clawFinger2;
+
+    /* OUTTAKE (Servo) */
+
     public CRServo outShoulder;
     public Servo outWrist;
     public Servo outFinger1;
     public Servo outFinger2;
 
+    
     float forward = 0;
     float horizontal = 0;
     float pivot = 0;
@@ -47,9 +56,9 @@ public class standardDrive extends OpMode {
     double CRmotorRotationTime;
 
     boolean wristREADY = false;
-    boolean pressedY = false; // for only getting one event per press
-    boolean pressedA = false;
+    Dictionary<Char, Boolean> buttonPressed = new Hashtable<>();
     boolean isPassing = false;
+
 
     double timeElapsed = -1;
     // HuskyLens.Block[] blocks;
@@ -57,6 +66,41 @@ public class standardDrive extends OpMode {
     // public void blockInitialize() {
     //      blocks = huskyLens.blocks();
     //  }
+
+    public Boolean pressed(Char button){
+        Boolean gamepadState;
+        switch (button) {
+            case 'y':
+                gamepadState = gamepad1.y;
+                break;
+        
+            case 'x':
+                gamepadState = gamepad1.x;
+                break;
+            
+            case 'a':
+                gamepadState = gamepad1.a;
+                break;
+            
+            case 'b':
+                gamepadState = gamepad1.b;
+                break;
+            
+            default:
+                break;
+        }
+
+        if (gamepadState) {
+            if (!buttonPressed.get(button)) {
+                buttonPressed.put(button, true);
+                return true;
+            }
+            return false;
+        }
+        // if gamepad isn't pressed
+        buttonPressed.put(button, false);
+        return false;
+    }
 
     @Override
     public void init() {
@@ -105,6 +149,8 @@ public class standardDrive extends OpMode {
         outWrist = hardwareMap.get(Servo.class, "outWrist");
         outFinger1 = hardwareMap.get(Servo.class, "outFinger1");
         outFinger2 = hardwareMap.get(Servo.class, "outFinger2");
+
+        buttonPressed.put("A",false);
 
 
     }
@@ -272,26 +318,21 @@ public class standardDrive extends OpMode {
             elbPosition = 0;
         }
 
-        if(gamepad1.a && !pressedA){
+        if(pressed("a")){
             if(wriPosition != 1){
                 wriPosition = 1;
             }
             else{
                 wriPosition = 0.15f;
             }
-            pressedA = true;
-        } else if (!gamepad1.a) {
-            pressedA = false;
         }
-        if(gamepad1.y && !pressedY){
+
+        if(pressed("y")){
             if(fingPosition != 1){
                 fingPosition = 1;
             }else{
                 fingPosition = 0;
             }
-            pressedY = true;
-        } else if (!gamepad1.b) {
-            pressedY = false;
         }
 
         clawShoulder.setPosition(shoPosition);
@@ -302,7 +343,7 @@ public class standardDrive extends OpMode {
     }
 
     private void autoIntake(){
-        if(gamepad1.x && !isPassing){
+        if(pressed('x')){
             if(shoPosition!= 0.45f && elbPosition != 0.8f){
                 wriPosition = 0.15f;
                 elbPosition = 0.8f;
@@ -313,8 +354,6 @@ public class standardDrive extends OpMode {
                 elbPosition = 0.35f;
                 shoPosition = 0.33f;
             }
-        }else if(!gamepad1.x){
-            isPassing = false;
         }
 
         //clawShoulder.setPosition(0.4);
