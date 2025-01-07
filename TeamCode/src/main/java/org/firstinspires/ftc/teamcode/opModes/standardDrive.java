@@ -67,23 +67,22 @@ public class standardDrive extends OpMode {
     //      blocks = huskyLens.blocks();
     //  }
 
-    public Boolean pressed(char button){
-        Boolean gamepadState;
+    public boolean pressed(char button){
         switch (button) {
             case 'y':
-                gamepadState = gamepad1.y;
+                boolean gamepadState = gamepad1.y;
                 break;
         
             case 'x':
-                gamepadState = gamepad1.x;
+                boolean gamepadState = gamepad1.x;
                 break;
             
             case 'a':
-                gamepadState = gamepad1.a;
+                boolean gamepadState = gamepad1.a;
                 break;
             
             case 'b':
-                gamepadState = gamepad1.b;
+                boolean gamepadState = gamepad1.b;
                 break;
             
             default:
