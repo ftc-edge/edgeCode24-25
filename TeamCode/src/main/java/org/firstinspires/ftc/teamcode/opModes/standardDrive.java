@@ -16,6 +16,8 @@ public class standardDrive extends OpMode {
     private DcMotor FLmotor;
     private DcMotor BRmotor;
     private DcMotor BLmotor;
+    private DcMotor slideMotor;
+    private DcMotor underSlide;
 
 
     // public HuskyLens huskyLens;
@@ -42,7 +44,12 @@ public class standardDrive extends OpMode {
     float wriPosition = 0;
     float fing1Position = 0.5f;
     float fing2Position = 0;
-    float outShoPosition = 1;
+    float outShoPosition = 0.5f;
+    float outWriPosition = 0f;
+    float outFing1Position = 0.15f;
+    float outFing2Position = 0.45f;
+
+    float slideMotorPower = 0;
 
     long passoffStartTime;
     // long CRmotorStartTime = getTime() + 3000000;
@@ -51,6 +58,7 @@ public class standardDrive extends OpMode {
     boolean wristREADY = false;
     boolean pressedY = false; // for only getting one event per press
     boolean pressedA = false;
+    boolean pressedRT = false;
     boolean isPassing = false;
 
     double timeElapsed = -1;
@@ -121,6 +129,14 @@ public class standardDrive extends OpMode {
         BLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
+        slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        underSlide = hardwareMap.get(DcMotor.class, "underSlide");
+        underSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        underSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
 
         // backOdo = hardwareMap.get(DcMotor.class, "backOdo");
 
@@ -148,6 +164,14 @@ public class standardDrive extends OpMode {
     public void loop() {
         servoControl();
         autoIntake();
+        if(gamepad2.a){
+            passoff();
+        }else if(gamepad2.y){
+            place();
+        }
+        else if(gamepad2.b){
+            neutral();
+        }
         doMove();
         // if(gamepad1.a) {
         //     shoulderSet(blockDecide(), clawBlock());
@@ -176,6 +200,11 @@ public class standardDrive extends OpMode {
         BRmotor.setPower(pivot + (forward + horizontal));
         FLmotor.setPower(pivot + (-forward - horizontal));
         BLmotor.setPower(pivot + (-forward + horizontal));
+
+        slideMotorPower = gamepad2.left_trigger - gamepad2.right_trigger;
+
+        doVertSlides(slideMotorPower);
+
     }
 
 //requires gavins perspective geometry formula
@@ -246,22 +275,31 @@ public class standardDrive extends OpMode {
         telemetry.addData("Pressed B", gamepad1.b);
         telemetry.addData("Wrist", wriPosition);
         telemetry.addData("Outtake Shoulder", outShoPosition);
-        telemetry.addData("Finger", fing2Position);
+        telemetry.addData("Finger", outFing1Position);
+        telemetry.addData("Outtake Wrist", outWriPosition);
+        telemetry.addData("SlideMotor", slideMotor.getTargetPosition());
+        telemetry.addData("slidemotorpower", slideMotorPower);
         telemetry.update();
     }
 
-    // private void passoff(){
-    //     // get Block
-    //     // move intake arm
-    //     // Elbow from 0.00 to 0.93
-    //     // Wrist to 0.99
-    //     // move slide arm
-    //     clawFinger2.setPosition(0);
-    //     clawShoulder.setPosition(0);
-    //     clawElbow.setPosition(0.93);
-    //     clawWrist.setPosition(0.99);
-    //     passoffStartTime = getTime();
-    // }
+    private void passoff(){
+        outShoPosition = 0.616f;
+        outWriPosition = 0.465f;
+        outFing1Position = 0.0f;
+        outFing2Position = 0.6f;
+    }
+    private void place(){
+        outShoPosition = 0.98f;
+        outWriPosition = 0.22f;
+        fing1Position = 0.8f;
+        fing2Position = 0.4f;
+    }
+    private void neutral(){
+        outShoPosition = 0.5f;
+        outWriPosition = 0f;
+        outFing1Position = 0.15f;
+        outFing2Position = 0.45f;
+    }
 
     // private void passoffTimer(){
     //     if(getTime()-passoffStartTime > 3000){
@@ -304,32 +342,57 @@ public class standardDrive extends OpMode {
         }
 
         if(gamepad1.a && !pressedA){
-            if(wriPosition != 1){
-                wriPosition = 1;
+            if(wriPosition != 0.5f){
+                wriPosition = 0.5f;
+                elbPosition = 0.2f;
             }
             else{
-                wriPosition = 0.15f;
+                wriPosition = 0;
             }
             pressedA = true;
         } else if (!gamepad1.a) {
             pressedA = false;
         }
         if(gamepad1.y && !pressedY){
-            if(fing1Position != 0.5f){
-                fing1Position = 0.5f;
+            if(fing1Position != 0.4f){
+                pressedY = true;
+                fing1Position = 0.4f;
                 fing2Position = 0.98f;
             }else{
+                pressedY = true;
                 fing1Position = 0.8f;
                 fing2Position = 0.4f;
             }
-            pressedY = true;
-        } else if (!gamepad1.b) {
+
+        } else if (!gamepad1.y) {
             pressedY = false;
         }
-        if(gamepad1.dpad_left){
-            fing2Position += 0.001;
-        }else if(gamepad1.dpad_right){
-            fing2Position -= 0.001;
+
+        if(gamepad2.x && !pressedRT){
+            if(outFing1Position != 0.15f){
+                pressedRT = true;
+                outFing1Position = 0.15f;
+                outFing2Position = 0.45f;
+            }else{
+                pressedRT = true;
+                outFing1Position = 0;
+                outFing2Position = 0.6f;
+                fing1Position = 0.8f;
+                fing2Position = 0.4f;
+            }
+        } else if (!gamepad2.x) {
+            pressedRT = false;
+        }
+
+        if(gamepad2.dpad_left){
+            outWriPosition += 0.001f;
+        }else if(gamepad2.dpad_right){
+            outWriPosition -= 0.001f;
+        }
+        if(gamepad2.dpad_up){
+            outShoPosition += 0.001f;
+        }else if(gamepad2.dpad_down){
+            outShoPosition -= 0.001f;
         }
 
         clawShoulder.setPosition(shoPosition);
@@ -338,19 +401,26 @@ public class standardDrive extends OpMode {
         clawFinger1.setPosition(fing1Position);
         clawFinger2.setPosition(fing2Position);
         outShoulder.setPosition(outShoPosition);
+        outWrist.setPosition(outWriPosition);
+        outFinger1.setPosition(outFing1Position);
+        outFinger2.setPosition(outFing2Position);
     }
 
     private void autoIntake(){
         if(gamepad1.x && !isPassing){
-            if(shoPosition!= 0.45f && elbPosition != 0.8f){
-                wriPosition = 0.15f;
-                elbPosition = 0.8f;
-                shoPosition = 0.45f;
+            if(shoPosition!= 0.434f && elbPosition != 0.74f){
+                isPassing = true;
+                wriPosition = 0;
+                elbPosition = 0.74f;
+                shoPosition = 0.434f;
+                fing1Position = 0.4f;
+                fing2Position = 0.98f;
             }else{
-                fing1Position = 1;
-                fing2Position = 1;
-                wriPosition = 0.75f;
-                elbPosition = 0.35f;
+                isPassing = true;
+                fing1Position = 0.5f;
+                fing2Position = 0.98f;
+                wriPosition = 0.5f;
+                elbPosition = 0.2f;
                 shoPosition = 0.33f;
             }
         }else if(!gamepad1.x){
@@ -359,6 +429,12 @@ public class standardDrive extends OpMode {
 
         //clawShoulder.setPosition(0.4);
     }
+
+    private void doVertSlides(float target){
+        underSlide.setPower(target);
+        slideMotor.setPower(target);
+    }
+
 
 }
 
