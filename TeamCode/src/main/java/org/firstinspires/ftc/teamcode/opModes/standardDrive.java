@@ -57,6 +57,9 @@ public class standardDrive extends OpMode {
     float initHorSlideMotorPosition;
     float slideMotorPower = 0;
 
+    float movementLimiter = 0.7f;
+    float vertSlideLimiter = 0.5f;
+
     long passoffStartTime;
     // long CRmotorStartTime = getTime() + 3000000;
     // double CRmotorRotationTime;
@@ -155,29 +158,33 @@ public class standardDrive extends OpMode {
         */
 
         FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
+        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         FRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
+        FLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         FLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         BRmotor = hardwareMap.get(DcMotor.class, "BRmotor");
+        BRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         BLmotor = hardwareMap.get(DcMotor.class, "BLmotor");
+        BLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         FLmotor.setDirection(DcMotor.Direction.REVERSE);
         BLmotor.setDirection(DcMotor.Direction.REVERSE);
 
+        // initSlideMotorPosition = slideMotor.getCurrentPosition();
         slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
         slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        // initSlideMotorPosition = slideMotor.getCurrentPosition();
 
         underSlide = hardwareMap.get(DcMotor.class, "underSlide");
         underSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -262,9 +269,9 @@ public class standardDrive extends OpMode {
         else if(gamepad2.x){
             pickup();
         }
-        if(gamepad2.b){
-            toggleOuttakeClaw();
-        }
+        // if(gamepad2.b){
+        //     toggleOuttakeClaw();
+        // }
 
         // if(gamepad1.a) {
         //     shoulderSet(blockDecide(), clawBlock());
@@ -283,18 +290,19 @@ public class standardDrive extends OpMode {
         //     addAngle(1);
         // }
 
-        forward = gamepad1.left_stick_y;
-        horizontal = gamepad1.left_stick_x;
-        pivot = gamepad1.right_stick_x;
 
-        FRmotor.setPower(forward + horizontal + pivot);
-        BRmotor.setPower(forward - horizontal + pivot);
-        FLmotor.setPower(forward - horizontal - pivot);
-        BLmotor.setPower(forward + horizontal - pivot);
+        forward = movementLimiter * gamepad1.left_stick_y;
+        horizontal =  movementLimiter * gamepad1.left_stick_x;
+        pivot = movementLimiter * gamepad1.right_stick_x;
 
-        slideMotorPower = gamepad2.left_trigger - gamepad2.right_trigger;
+        FRmotor.setPower((forward + horizontal + pivot));
+        BRmotor.setPower((forward - horizontal + pivot));
+        FLmotor.setPower((forward - horizontal - pivot));
+        BLmotor.setPower((forward + horizontal - pivot));
 
-        // doVertSlides(slideMotorPower);
+        slideMotorPower = vertSlideLimiter * (gamepad2.left_trigger - gamepad2.right_trigger);
+
+        doVertSlides(slideMotorPower);
         // horSlideMotorPosition = intakeMotor.getCurrentPosition();
         telemetry.addData("intakeMotorPosition", -horSlideMotorPosition);
         telemetry.addData("initial", -initHorSlideMotorPosition);
@@ -389,7 +397,7 @@ public class standardDrive extends OpMode {
             toggleOuttakeClaw();
             pressedRB = true;
         } else if (!gamepad2.right_bumper) {
-            pressedRT = false;
+            pressedRB = false;
         }
 
         if(gamepad2.dpad_left){
@@ -441,15 +449,12 @@ public class standardDrive extends OpMode {
     }
 
     private void doVertSlides(float target){
-        // slideMotorPosition = slideMotor.getCurrentPosition();
-        underSlide.setPower(target/5);
-        slideMotor.setPower(target/5);
+        underSlide.setPower(target);
+        slideMotor.setPower(target);
     }
 
     private void doHorSlides(float target){
-
         intakeMotor.setPower(target);
-
     }
 
 //requires gavins perspective geometry formula
