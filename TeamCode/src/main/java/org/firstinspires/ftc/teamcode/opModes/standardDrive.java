@@ -10,6 +10,10 @@ import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 
+import java.util.*;
+
+//TODO: allow for manual adjustments for most things (e.g. claw on round 5)
+
 @TeleOp()
 public class standardDrive extends OpMode {
     private DcMotor FRmotor;
@@ -18,7 +22,7 @@ public class standardDrive extends OpMode {
     private DcMotor BLmotor;
     private DcMotor slideMotor;
     private DcMotor underSlide;
-
+    private DcMotor intakeMotor;
 
     // public HuskyLens huskyLens;
     private huskyLensTest hl;
@@ -40,54 +44,102 @@ public class standardDrive extends OpMode {
     float horizontal = 0;
     float pivot = 0;
     float shoPosition = 0.5f;
-    float elbPosition = 0;
-    float wriPosition = 0;
-    float fing1Position = 0.5f;
-    float fing2Position = 0;
+    float elbPosition = 0.2f;
+    float wriPosition = 0f;
+    float fing1Position = 0.43f;
+    float fing2Position = 0.95f;
     float outShoPosition = 0.5f;
     float outWriPosition = 0f;
-    float outFing1Position = 0.15f;
-    float outFing2Position = 0.45f;
+    float outFing1Position = 0.2f;
+    float outFing2Position = 0.4f;
 
+    float extensionLimit = 0f;
+
+    float slideMotorPosition;
+    float initSlideMotorPosition;
+    float horSlideMotorPosition;
+    float initHorSlideMotorPosition;
     float slideMotorPower = 0;
+
+    float movementLimiter = 0.7f;
+    float vertSlideLimiter = 0.5f;
 
     long passoffStartTime;
     // long CRmotorStartTime = getTime() + 3000000;
     // double CRmotorRotationTime;
 
+    HashMap<String, Boolean> buttonPressed = new HashMap<String, Boolean>();
+
     boolean wristREADY = false;
     boolean pressedY = false; // for only getting one event per press
     boolean pressedA = false;
     boolean pressedRT = false;
+    boolean pressedRB = false;
+    boolean pressedLB = false;
     boolean isPassing = false;
+    
+    boolean hangMode = false;
 
     double timeElapsed = -1;
     // HuskyLens.Block[] blocks;
 
-    // public void blockInitialize() {
+    // public void blockinitize() {
     //      blocks = huskyLens.blocks();
     //  }
 
-    public boolean pressed(char button){
+    private boolean equals(float a, float b) {
+        return (a - b <= 0.01);
+    }
+
+    private boolean lessorequals(float a, float b) {
+        return ( equals(a,b) || a < b );
+    }
+    public boolean pressed(String button){
+        boolean gamepadState;
         switch (button) {
-            case 'y':
-                boolean gamepadState = gamepad1.y;
+            case "1y":
+                gamepadState = gamepad1.y;
                 break;
-        
-            case 'x':
-                boolean gamepadState = gamepad1.x;
+
+            case "1x":
+                gamepadState = gamepad1.x;
                 break;
-            
-            case 'a':
-                boolean gamepadState = gamepad1.a;
+
+            case "1a":
+                gamepadState = gamepad1.a;
                 break;
-            
-            case 'b':
-                boolean gamepadState = gamepad1.b;
+
+            case "1b":
+                gamepadState = gamepad1.b;
                 break;
-            
+
+            case "2a":
+                gamepadState = gamepad2.a;
+                break;
+
+            case "2b":
+                gamepadState = gamepad2.b;
+                break;
+
+            case "2x":
+                gamepadState = gamepad2.x;
+                break;
+
+            case "2y":
+                gamepadState = gamepad2.y;
+                break;
+
+            case "2rb":
+                gamepadState = gamepad2.right_bumper;
+                break;
+
             default:
+                gamepadState = false;
                 break;
+        }
+
+        if (!buttonPressed.containsKey(button)) {
+            buttonPressed.put(button, false);
         }
 
         if (gamepadState) {
@@ -113,22 +165,30 @@ public class standardDrive extends OpMode {
         */
 
         FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
+        FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         FRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
+        FLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         FLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         BRmotor = hardwareMap.get(DcMotor.class, "BRmotor");
+        BRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         BLmotor = hardwareMap.get(DcMotor.class, "BLmotor");
+        BLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        FLmotor.setDirection(DcMotor.Direction.REVERSE);
+        BLmotor.setDirection(DcMotor.Direction.REVERSE);
+
+        // initSlideMotorPosition = slideMotor.getCurrentPosition();
         slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
         slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -137,6 +197,10 @@ public class standardDrive extends OpMode {
         underSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         underSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
+        intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        // initHorSlideMotorPosition = intakeMotor.getCurrentPosition();
 
         // backOdo = hardwareMap.get(DcMotor.class, "backOdo");
 
@@ -161,6 +225,48 @@ public class standardDrive extends OpMode {
 
     }
 
+    private long getTime(){
+        return System.nanoTime()/1000000;
+    }
+
+    private void openIntakeClaw(){
+        fing1Position = 0.8f;
+        fing2Position = 0.4f;
+    }
+
+    private void closeIntakeClaw(){
+        fing1Position = 0.43f;
+        fing2Position = 0.95f;
+    }
+
+    private void toggleIntakeClaw(){
+        if (fing1Position != 0.8f) {
+            openIntakeClaw();
+        } else {
+            closeIntakeClaw();
+        }
+    }
+
+    private void closeOuttakeClaw(){
+        //ACTUALLY OPEN
+        outFing1Position = 0.0f;
+        outFing2Position = 0.6f;
+    }
+
+    private void openOuttakeClaw(){
+        // ACTUALLY CLOSE
+        outFing1Position = 0.3f;
+        outFing2Position = 0.3f;
+    }
+
+    private void toggleOuttakeClaw(){
+        if (outFing1Position == 0.0f) {
+            openOuttakeClaw();
+        } else {
+            closeOuttakeClaw();
+        }
+    }
+
     public void loop() {
         servoControl();
         autoIntake();
@@ -169,21 +275,22 @@ public class standardDrive extends OpMode {
         }else if(gamepad2.y){
             place();
         }
-        else if(gamepad2.b){
-            neutral();
+        else if(gamepad2.x){
+            pickup();
         }
-        doMove();
+        // if(gamepad2.b){
+        //     toggleOuttakeClaw();
+        // }
+
         // if(gamepad1.a) {
         //     shoulderSet(blockDecide(), clawBlock());
         // }
         // if(gamepad1.b) {
         //     wristReady();
         // }
+        
+        doMove();
         telemetry();
-    }
-
-    private long getTime(){
-        return System.nanoTime()/1000000;
     }
 
     public void doMove() {
@@ -192,19 +299,194 @@ public class standardDrive extends OpMode {
         //     addAngle(1);
         // }
 
-        forward = gamepad1.left_stick_y;
-        horizontal = gamepad1.left_stick_x;
-        pivot = gamepad1.right_stick_x;
 
-        FRmotor.setPower(pivot + (forward - horizontal));
-        BRmotor.setPower(pivot + (forward + horizontal));
-        FLmotor.setPower(pivot + (-forward - horizontal));
-        BLmotor.setPower(pivot + (-forward + horizontal));
+        forward = /* movementLimiter * */ gamepad1.left_stick_y;
+        horizontal = /* movementLimiter * */ gamepad1.left_stick_x;
+        pivot =/* movementLimiter * */ gamepad1.right_stick_x;
 
-        slideMotorPower = gamepad2.left_trigger - gamepad2.right_trigger;
+        FRmotor.setPower((forward - horizontal + pivot));
+        BRmotor.setPower((forward + horizontal + pivot));
+        FLmotor.setPower((forward + horizontal - pivot));
+        BLmotor.setPower((forward - horizontal - pivot));
+
+        slideMotorPower = vertSlideLimiter * (gamepad2.left_trigger - gamepad2.right_trigger);
 
         doVertSlides(slideMotorPower);
+        // horSlideMotorPosition = intakeMotor.getCurrentPosition();
+        telemetry.addData("intakeMotorPosition", -horSlideMotorPosition);
+        telemetry.addData("initial", -initHorSlideMotorPosition);
+        // telemetry.addData("true or false", lessorequals((float) -horSlideMotorPosition, (float) -initHorSlideMotorPosition));
+        doHorSlides(gamepad2.left_stick_y);
+    }
 
+
+    private void telemetry(){
+        telemetry.addData("time", getTime());
+        telemetry.addData("CRmotor", timeElapsed);
+        telemetry.addData("Elbow Position", elbPosition);
+        telemetry.addData("shoulder", shoPosition);
+        telemetry.addData("Wrist", wriPosition);
+        telemetry.addData("Outtake Shoulder", outShoPosition);
+        telemetry.addData("Finger", outFing1Position);
+        telemetry.addData("Outtake Wrist", outWriPosition);
+        telemetry.addData("SlideMotor", slideMotor.getTargetPosition());
+        telemetry.addData("slidemotorpower", slideMotorPower);
+        telemetry.addData("CurrentSlideMotorPosition", slideMotorPosition);
+        telemetry.addData("strafe", horizontal);
+        telemetry.addData("slidespower", vertSlideLimiter);
+        telemetry.update();
+    }
+
+    private void passoff(){
+        outShoPosition = 0.593f;
+        outWriPosition = 0.479f;
+        closeOuttakeClaw();
+    }
+    private void place(){
+        // Rotate arm above robot
+        outShoPosition = 0.98f;
+        outWriPosition = 0.22f;
+
+        // Opens the fingers1 just in case
+        fing1Position = 0.8f;
+        fing2Position = 0.4f;
+    }
+    private void neutral(){
+        // I've commented the two lines out just to use this function as a "open claw" function
+
+        // outShoPosition = 0.5f;
+        // outWriPosition = 0f;
+
+        openOuttakeClaw();
+    }
+    private void pickup(){
+        outShoPosition = 0.257f;
+        outWriPosition = 0.972f;
+        closeOuttakeClaw();
+    }
+
+    private void servoControl(){
+        if(gamepad1.right_bumper){
+            shoPosition -= 0.005;
+        }else if(gamepad1.left_bumper){
+            shoPosition += 0.005;
+        }
+        if(gamepad1.dpad_up){
+            elbPosition += 0.01;
+        }else if(gamepad1.dpad_down){
+            elbPosition -= 0.01;
+        }
+        if(elbPosition > 1){
+            elbPosition = 1;
+        }else if(elbPosition < 0){
+            elbPosition = 0;
+        }
+
+        if(gamepad2.left_bumper && !pressedLB){
+            if(vertSlideLimiter != 1f){
+                vertSlideLimiter = 1f; 
+            }
+            else{
+                vertSlideLimiter = 0.5f;
+            }
+            pressedLB = true;
+        } else if (!gamepad2.left_bumper) {
+            pressedLB = false;
+        }
+        
+        if(gamepad1.a && !pressedA){
+            if(wriPosition != 0.5f){
+                wriPosition = 0.5f;
+                elbPosition = 0.2f;
+            }
+            else{
+                wriPosition = 0;
+            }
+            pressedA = true;
+        } else if (!gamepad1.a) {
+            pressedA = false;
+        }
+
+        if(gamepad1.y && !pressedY){
+            toggleIntakeClaw();
+            pressedY = true;
+        } else if (!gamepad1.y) {
+            pressedY = false;
+        }
+
+        if(gamepad2.right_bumper && !pressedRB){
+            toggleOuttakeClaw();
+            pressedRB = true;
+        } else if (!gamepad2.right_bumper) {
+            pressedRB = false;
+        }
+
+        if(gamepad2.dpad_left){
+            outWriPosition += 0.001f;
+        }
+        if(gamepad2.dpad_right){
+            outWriPosition -= 0.001f;
+        }
+        if(gamepad2.dpad_up){
+            hangMode = false;
+        }
+        if(gamepad2.dpad_down){
+            hangMode = true;
+        }
+
+        clawShoulder.setPosition(shoPosition);
+        clawElbow.setPosition(elbPosition);
+        clawWrist.setPosition(wriPosition);
+        clawFinger1.setPosition(fing1Position);
+        clawFinger2.setPosition(fing2Position);
+        outShoulder.setPosition(outShoPosition);
+        outWrist.setPosition(outWriPosition);
+        outFinger1.setPosition(outFing1Position);
+        outFinger2.setPosition(outFing2Position);
+    }
+
+    private void autoIntake(){
+        if(gamepad1.x && !isPassing){
+            if(shoPosition!= 0.434f && elbPosition != 0.69f){
+                isPassing = true;
+                wriPosition = 0;
+                elbPosition = 0.69f;
+                shoPosition = 0.434f;
+                // fing1Position = 0.4f;
+                // fing2Position = 0.98f;
+            }else{
+                isPassing = true;
+                // fing1Position = 0.5f;
+                // fing2Position = 0.98f;
+                wriPosition = 0.5f;
+                elbPosition = 0.2f;
+                shoPosition = 0.33f;
+            }
+        }else if(!gamepad1.x){
+            isPassing = false;
+        }
+
+        //clawShoulder.setPosition(0.4);
+    }
+
+    private void doVertSlides(float target){
+        if(hangMode == true) {
+            target = -1;
+            // TODO: Control Intake Claw such that it doesn't hit the ground, BELOW CODE TECHNICALLY SHOULD WORK
+            wriPosition = 0;
+            elbPosition = 0.69f;
+            shoPosition = 0.434f;
+            
+        }
+        underSlide.setPower(target);
+        // slideMotor.setPower(target);
+    }
+
+    private void doHorSlides(float target){
+        if(extensionLimit < 100){
+            extensionLimit += target;
+            intakeMotor.setPower(target);
+        }
     }
 
 //requires gavins perspective geometry formula
@@ -264,43 +546,6 @@ public class standardDrive extends OpMode {
     //     wristREADY = true;
     // }
 
-
-    private void telemetry(){
-
-        telemetry.addData("time", getTime());
-        telemetry.addData("CRmotor", timeElapsed);
-        telemetry.addData("Elbow Position", elbPosition);
-        telemetry.addData("shoulder", shoPosition);
-        telemetry.addData("Pressed A", pressedA);
-        telemetry.addData("Pressed B", gamepad1.b);
-        telemetry.addData("Wrist", wriPosition);
-        telemetry.addData("Outtake Shoulder", outShoPosition);
-        telemetry.addData("Finger", outFing1Position);
-        telemetry.addData("Outtake Wrist", outWriPosition);
-        telemetry.addData("SlideMotor", slideMotor.getTargetPosition());
-        telemetry.addData("slidemotorpower", slideMotorPower);
-        telemetry.update();
-    }
-
-    private void passoff(){
-        outShoPosition = 0.616f;
-        outWriPosition = 0.465f;
-        outFing1Position = 0.0f;
-        outFing2Position = 0.6f;
-    }
-    private void place(){
-        outShoPosition = 0.98f;
-        outWriPosition = 0.22f;
-        fing1Position = 0.8f;
-        fing2Position = 0.4f;
-    }
-    private void neutral(){
-        outShoPosition = 0.5f;
-        outWriPosition = 0f;
-        outFing1Position = 0.15f;
-        outFing2Position = 0.45f;
-    }
-
     // private void passoffTimer(){
     //     if(getTime()-passoffStartTime > 3000){
     //         clawWrist.setPosition(0.16);
@@ -323,118 +568,4 @@ public class standardDrive extends OpMode {
     //         outShoulder.setPower(0);
     //     }
     // }
-
-    private void servoControl(){
-        if(gamepad1.right_bumper){
-            shoPosition -= 0.005;
-        }else if(gamepad1.left_bumper){
-            shoPosition += 0.005;
-        }
-        if(gamepad1.dpad_up){
-            elbPosition += 0.01;
-        }else if(gamepad1.dpad_down){
-            elbPosition -= 0.01;
-        }
-        if(elbPosition > 1){
-            elbPosition = 1;
-        }else if(elbPosition < 0){
-            elbPosition = 0;
-        }
-
-        if(gamepad1.a && !pressedA){
-            if(wriPosition != 0.5f){
-                wriPosition = 0.5f;
-                elbPosition = 0.2f;
-            }
-            else{
-                wriPosition = 0;
-            }
-            pressedA = true;
-        } else if (!gamepad1.a) {
-            pressedA = false;
-        }
-        if(gamepad1.y && !pressedY){
-            if(fing1Position != 0.4f){
-                pressedY = true;
-                fing1Position = 0.4f;
-                fing2Position = 0.98f;
-            }else{
-                pressedY = true;
-                fing1Position = 0.8f;
-                fing2Position = 0.4f;
-            }
-
-        } else if (!gamepad1.y) {
-            pressedY = false;
-        }
-
-        if(gamepad2.x && !pressedRT){
-            if(outFing1Position != 0.15f){
-                pressedRT = true;
-                outFing1Position = 0.15f;
-                outFing2Position = 0.45f;
-            }else{
-                pressedRT = true;
-                outFing1Position = 0;
-                outFing2Position = 0.6f;
-                fing1Position = 0.8f;
-                fing2Position = 0.4f;
-            }
-        } else if (!gamepad2.x) {
-            pressedRT = false;
-        }
-
-        if(gamepad2.dpad_left){
-            outWriPosition += 0.001f;
-        }else if(gamepad2.dpad_right){
-            outWriPosition -= 0.001f;
-        }
-        if(gamepad2.dpad_up){
-            outShoPosition += 0.001f;
-        }else if(gamepad2.dpad_down){
-            outShoPosition -= 0.001f;
-        }
-
-        clawShoulder.setPosition(shoPosition);
-        clawElbow.setPosition(elbPosition);
-        clawWrist.setPosition(wriPosition);
-        clawFinger1.setPosition(fing1Position);
-        clawFinger2.setPosition(fing2Position);
-        outShoulder.setPosition(outShoPosition);
-        outWrist.setPosition(outWriPosition);
-        outFinger1.setPosition(outFing1Position);
-        outFinger2.setPosition(outFing2Position);
-    }
-
-    private void autoIntake(){
-        if(gamepad1.x && !isPassing){
-            if(shoPosition!= 0.434f && elbPosition != 0.74f){
-                isPassing = true;
-                wriPosition = 0;
-                elbPosition = 0.74f;
-                shoPosition = 0.434f;
-                fing1Position = 0.4f;
-                fing2Position = 0.98f;
-            }else{
-                isPassing = true;
-                fing1Position = 0.5f;
-                fing2Position = 0.98f;
-                wriPosition = 0.5f;
-                elbPosition = 0.2f;
-                shoPosition = 0.33f;
-            }
-        }else if(!gamepad1.x){
-            isPassing = false;
-        }
-
-        //clawShoulder.setPosition(0.4);
-    }
-
-    private void doVertSlides(float target){
-        underSlide.setPower(target);
-        slideMotor.setPower(target);
-    }
-
-
 }
-
