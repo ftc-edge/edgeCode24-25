@@ -70,12 +70,18 @@
      public Servo outWrist;
      public Servo outFinger1;
      public Servo outFinger2;
- 
+     public Servo clawFinger1;
+    public Servo clawFinger2;
+     public Servo clawElbow;
+     public Servo clawWrist;
      private ElapsedTime runtime = new ElapsedTime();
  
  
-     static final double FORWARD_SPEED = 0.6;
+     static final double FORWARD_SPEED = 0.45;
      static final double TURN_SPEED = 0.5;
+ 
+    private void place(){
+    }
  
      @Override
      public void runOpMode() {
@@ -118,6 +124,14 @@
          outFinger1 = hardwareMap.get(Servo.class, "outFinger1");
          outFinger2 = hardwareMap.get(Servo.class, "outFinger2");
  
+        clawFinger1 = hardwareMap.get(Servo.class, "clawFinger1");
+        clawFinger2 = hardwareMap.get(Servo.class, "clawFinger2");
+        
+        clawElbow = hardwareMap.get(Servo.class, "clawElbow");
+        clawWrist = hardwareMap.get(Servo.class, "clawWrist");
+        
+        
+        
          // To drive forward, most robots need the motor on one side to be reversed, because the axles point in opposite directions.
          // When run, this OpMode should start both motors driving forward. So adjust these two lines based on your first test drive.
          // Note: The settings here assume direct drive on left and right wheels.  Gear Reduction or 90 Deg drives may require direction flips
@@ -127,63 +141,136 @@
          telemetry.addData("Status", "Ready to run");    //
          telemetry.update();
  
+ 
          // Wait for the game to start (driver presses PLAY)
          waitForStart();
- 
+        
+        clawElbow.setPosition(0.69f);
+        clawWrist.setPosition(0.5f);
+        
+        
+        float outFing1Position = 0.3f;
+        float outFing2Position = 0.3f;
+        
+        outFinger1.setPosition(outFing1Position);
+        outFinger2.setPosition(outFing2Position);
+        
+        float outShoPosition = 0.593f;
+        float outWriPosition = 0.479f;
+        outShoulder.setPosition(outShoPosition);
+        outWrist.setPosition(outWriPosition);
+        
+        //TODO: lock intake claw
+        
          // Step through each leg of the path, ensuring that the Auto mode has not been stopped along the way
  
          // Step 1:  Drive forward for 3 seconds
-        FRmotor.setPower(-FORWARD_SPEED);
+        // FRmotor.setPower(FORWARD_SPEED - 0.01);
+        // FLmotor.setPower(FORWARD_SPEED + 0.01);
+        // BRmotor.setPower(FORWARD_SPEED + 0.01);
+        // BLmotor.setPower(FORWARD_SPEED - 0.01);
+        // runtime.reset();
+        
+        
+        // while (opModeIsActive() && (runtime.seconds() < 0.15)) {
+        //     telemetry.addData("Path", "Leg 1: Elapsed", runtime.seconds());
+        //     telemetry.update();
+        // }
+        runtime.reset();
+        
+        FRmotor.setPower(FORWARD_SPEED);
         FLmotor.setPower(FORWARD_SPEED);
         BRmotor.setPower(FORWARD_SPEED);
-        BLmotor.setPower(-FORWARD_SPEED);
-         runtime.reset();
-         while (opModeIsActive() && (runtime.seconds() < 0.5)) {
-             telemetry.addData("Path", "Leg 1: %4.1f S Elapsed", runtime.seconds());
-             telemetry.update();
-         }
+        BLmotor.setPower(FORWARD_SPEED);
+        
+        while (opModeIsActive() && (runtime.seconds() < 0.75)) {
+            telemetry.addData("Path", "Leg 1: Elapsed", runtime.seconds());
+            telemetry.update();
+        }
+    
+        FRmotor.setPower(0);
+        FLmotor.setPower(0);
+        BRmotor.setPower(0);
+        BLmotor.setPower(0);
+        runtime.reset();
+        
+        // // Opens the fingers1 just in case
+        // float fing1Position = 0.8f;
+        // float fing2Position = 0.4f;
+        // clawFinger1.setPosition(fing1Position);
+        // clawFinger2.setPosition(fing2Position);
+        
+        // // Rotate arm above robot
+        //  outShoPosition = 0.98f;
+        //  outWriPosition = 0.22f;
 
-         FRmotor.setPower(0);
-         FLmotor.setPower(0);
-         BRmotor.setPower(0);
-         BLmotor.setPower(0);
-         runtime.reset();
+        // outShoulder.setPosition(outShoPosition);
+        // outWrist.setPosition(outWriPosition);
+        // runtime.reset();
+        // while(opModeIsActive() && (runtime.seconds() < 1.0)){
+        //     telemetry.addData("Path", "Waiting for ", runtime.seconds());
+        //     telemetry.update();
+        // }
+        
+        // // Close Fingers (To make sure)
+        //  outFing1Position = 0.3f;
+        //  outFing2Position = 0.3f;
+        
+        // outFinger1.setPosition(outFing1Position);
+        // outFinger2.setPosition(outFing2Position);
+        
+        // // Turn the Robot
+        
+        //  FRmotor.setPower(-TURN_SPEED);
+        //  BRmotor.setPower(-TURN_SPEED);
+        //  FLmotor.setPower(TURN_SPEED);
+        //  BLmotor.setPower(TURN_SPEED);
+        //  runtime.reset();
+        //  while (opModeIsActive() && (runtime.seconds() < 0.2)) {
+        //      telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
+        //      telemetry.update();
+        //  }
+         
+        // // Slides
+        // runtime.reset();
+        // slideMotor.setPower(TURN_SPEED);
+        // underSlide.setPower(TURN_SPEED);
+        // while(opModeIsActive() && (runtime.seconds() < 2.65)){
+        //     telemetry.addData("Path", "Leg 3: Elapsed", runtime.seconds());
+        //     telemetry.update();
+        // }
+        // slideMotor.setPower(0);
+        // underSlide.setPower(0);
+        // runtime.reset();
+        
+        // // Opens the Claws
+        // outFinger1.setPosition(0.0f);
+        // outFinger2.setPosition(0.6f);
  
-         // Step 2:  Spin right for 1.3 seconds
-         FRmotor.setPower(-TURN_SPEED);
-         BRmotor.setPower(-TURN_SPEED);
-         FLmotor.setPower(TURN_SPEED);
-         BLmotor.setPower(TURN_SPEED);
-         runtime.reset();
-         while (opModeIsActive() && (runtime.seconds() < 0.25)) {
-             telemetry.addData("Path", "Leg 2: %4.1f S Elapsed", runtime.seconds());
-             telemetry.update();
-         }
+       
+         
+        //  slideMotor.setPower(TURN_SPEED);
+        //  underSlide.setPower(TURN_SPEED);
+        //  while(opModeIsActive() && (runtime.seconds() < 0.5)){
+        //     telemetry.addData("Path", "Leg 3: %4.1f S Elapsed", runtime.seconds());
+        //     telemetry.update();
+        //  }
 
-         slideMotor.setPower(TURN_SPEED);
-         underSlide.setPower(TURN_SPEED);
-         while(opModeIsActive() && (runtime.seconds() < 0.5)){
-            telemetry.addData("Path", "Leg 3: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-         }
+        //  outShoulder.setPosition(0.98f);
+        //  outWrist.setPosition(0.22f);
+        //  while(opModeIsActive() && (runtime.seconds() < 0.1)){
+        //     telemetry.addData("Path", "Leg 4: %4.1f S Elapsed", runtime.seconds());
+        //     telemetry.update();
+        //  }
 
-         outShoulder.setPosition(0.98f);
-         outWrist.setPosition(0.22f);
-         while(opModeIsActive() && (runtime.seconds() < 0.1)){
-            telemetry.addData("Path", "Leg 4: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-         }
+        //  while(opModeIsActive() && (runtime.seconds() < 0.1)){
+        //     telemetry.addData("Path", "Leg 4: %4.1f S Elapsed", runtime.seconds());
+        //     telemetry.update();
+        //  }
 
-         outFinger1.setPosition(0.15f);
-         outFinger1.setPosition(0.45f);
-         while(opModeIsActive() && (runtime.seconds() < 0.1)){
-            telemetry.addData("Path", "Leg 4: %4.1f S Elapsed", runtime.seconds());
-            telemetry.update();
-         }
-
-         outShoulder.setPosition(0.593f);
-         outWristPosition(0.479f);
-
+        //  outShoulder.setPosition(0.593f);
+        //  outWrist.setPosition(0.479f);
+    
          telemetry.addData("Path", "Complete");
          telemetry.update();
          sleep(1000);
