@@ -51,6 +51,8 @@ public class standardDrive extends OpMode {
     float outFing1Position = 0.15f;
     float outFing2Position = 0.45f;
 
+    float extensionLimit = 0f;
+
     float slideMotorPosition;
     float initSlideMotorPosition;
     float horSlideMotorPosition;
@@ -454,7 +456,10 @@ public class standardDrive extends OpMode {
     }
 
     private void doHorSlides(float target){
-        intakeMotor.setPower(target);
+        if(extensionLimit < 100){
+            extensionLimit += target;
+            intakeMotor.setPower(target);
+        }
     }
 
 //requires gavins perspective geometry formula
