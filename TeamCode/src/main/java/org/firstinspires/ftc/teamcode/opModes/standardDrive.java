@@ -12,6 +12,8 @@ import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 
 import java.util.*;
 
+//TODO: allow for manual adjustments for most things (e.g. claw on round 5)
+
 @TeleOp()
 public class standardDrive extends OpMode {
     private DcMotor FRmotor;
@@ -48,8 +50,10 @@ public class standardDrive extends OpMode {
     float fing2Position = 0.95f;
     float outShoPosition = 0.5f;
     float outWriPosition = 0f;
-    float outFing1Position = 0.15f;
-    float outFing2Position = 0.45f;
+    float outFing1Position = 0.2f;
+    float outFing2Position = 0.4f;
+
+    float extensionLimit = 0f;
 
     float extensionLimit = 0f;
 
@@ -73,7 +77,10 @@ public class standardDrive extends OpMode {
     boolean pressedA = false;
     boolean pressedRT = false;
     boolean pressedRB = false;
+    boolean pressedLB = false;
     boolean isPassing = false;
+    
+    boolean hangMode = false;
 
     double timeElapsed = -1;
     // HuskyLens.Block[] blocks;
@@ -243,13 +250,15 @@ public class standardDrive extends OpMode {
     }
 
     private void closeOuttakeClaw(){
+        //ACTUALLY OPEN
         outFing1Position = 0.0f;
         outFing2Position = 0.6f;
     }
 
     private void openOuttakeClaw(){
-        outFing1Position = 0.15f;
-        outFing2Position = 0.45f;
+        // ACTUALLY CLOSE
+        outFing1Position = 0.3f;
+        outFing2Position = 0.3f;
     }
 
     private void toggleOuttakeClaw(){
@@ -281,7 +290,7 @@ public class standardDrive extends OpMode {
         // if(gamepad1.b) {
         //     wristReady();
         // }
-
+        
         doMove();
         telemetry();
     }
@@ -293,14 +302,14 @@ public class standardDrive extends OpMode {
         // }
 
 
-        forward = movementLimiter * gamepad1.left_stick_y;
-        horizontal =  movementLimiter * gamepad1.left_stick_x;
-        pivot = movementLimiter * gamepad1.right_stick_x;
+        forward = /* movementLimiter * */ gamepad1.left_stick_y;
+        horizontal = /* movementLimiter * */ gamepad1.left_stick_x;
+        pivot =/* movementLimiter * */ gamepad1.right_stick_x;
 
-        FRmotor.setPower((forward + horizontal + pivot));
-        BRmotor.setPower((forward - horizontal + pivot));
-        FLmotor.setPower((forward - horizontal - pivot));
-        BLmotor.setPower((forward + horizontal - pivot));
+        FRmotor.setPower((forward - horizontal + pivot));
+        BRmotor.setPower((forward + horizontal + pivot));
+        FLmotor.setPower((forward + horizontal - pivot));
+        BLmotor.setPower((forward - horizontal - pivot));
 
         slideMotorPower = vertSlideLimiter * (gamepad2.left_trigger - gamepad2.right_trigger);
 
@@ -326,7 +335,7 @@ public class standardDrive extends OpMode {
         telemetry.addData("slidemotorpower", slideMotorPower);
         telemetry.addData("CurrentSlideMotorPosition", slideMotorPosition);
         telemetry.addData("strafe", horizontal);
-        telemetry.addData("slides", gamepad2.left_trigger);
+        telemetry.addData("slidespower", vertSlideLimiter);
         telemetry.update();
     }
 
@@ -340,7 +349,7 @@ public class standardDrive extends OpMode {
         outShoPosition = 0.98f;
         outWriPosition = 0.22f;
 
-        // Opens the fingers just in case
+        // Opens the fingers1 just in case
         fing1Position = 0.8f;
         fing2Position = 0.4f;
     }
@@ -375,6 +384,18 @@ public class standardDrive extends OpMode {
             elbPosition = 0;
         }
 
+        if(gamepad2.left_bumper && !pressedLB){
+            if(vertSlideLimiter != 1f){
+                vertSlideLimiter = 1f; 
+            }
+            else{
+                vertSlideLimiter = 0.5f;
+            }
+            pressedLB = true;
+        } else if (!gamepad2.left_bumper) {
+            pressedLB = false;
+        }
+        
         if(gamepad1.a && !pressedA){
             if(wriPosition != 0.5f){
                 wriPosition = 0.5f;
@@ -409,10 +430,10 @@ public class standardDrive extends OpMode {
             outWriPosition -= 0.001f;
         }
         if(gamepad2.dpad_up){
-            outShoPosition += 0.001f;
+            hangMode = false;
         }
         if(gamepad2.dpad_down){
-            outShoPosition -= 0.001f;
+            hangMode = true;
         }
 
         clawShoulder.setPosition(shoPosition);
@@ -451,8 +472,16 @@ public class standardDrive extends OpMode {
     }
 
     private void doVertSlides(float target){
+        if(hangMode == true) {
+            target = -1;
+            // TODO: Control Intake Claw such that it doesn't hit the ground, BELOW CODE TECHNICALLY SHOULD WORK
+            wriPosition = 0;
+            elbPosition = 0.69f;
+            shoPosition = 0.434f;
+            
+        }
         underSlide.setPower(target);
-        slideMotor.setPower(target);
+        // slideMotor.setPower(target);
     }
 
     private void doHorSlides(float target){
