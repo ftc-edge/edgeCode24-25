@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.drive;
 
+import static org.firstinspires.ftc.robotcore.external.BlocksOpModeCompanion.telemetry;
+
 import androidx.annotation.NonNull;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -31,10 +33,12 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
     public static double WHEEL_RADIUS = 1.89; // in
     public static double GEAR_RATIO = 1; // output (wheel) speed / input (encoder) speed
 
-    public static double LATERAL_DISTANCE = 8.2; // in; distance between the left and right wheels
+    public static double LATERAL_DISTANCE = 8.16; // in; distance between the left and right wheels
     public static double FORWARD_OFFSET = 4.2; // in; offset of the lateral wheel
 
     private Encoder leftEncoder, rightEncoder, frontEncoder;
+    public static double Xmult = 0.496837;
+    public static double Ymult = 0.50277;
 
     private List<Integer> lastEncPositions, lastEncVels;
 
@@ -48,11 +52,12 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         lastEncPositions = lastTrackingEncPositions;
         lastEncVels = lastTrackingEncVels;
 
-        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftEncoder"));
-        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightEncoder"));
-        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "frontEncoder"));
+        leftEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightFront"));
+        rightEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "leftFront"));
+        frontEncoder = new Encoder(hardwareMap.get(DcMotorEx.class, "rightRear"));
 
         // TODO: reverse any encoders using Encoder.setDirection(Encoder.Direction.REVERSE)
+        rightEncoder.setDirection(Encoder.Direction.REVERSE);
     }
 
     public static double encoderTicksToInches(double ticks) {
@@ -72,9 +77,9 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         lastEncPositions.add(frontPos);
 
         return Arrays.asList(
-                encoderTicksToInches(leftPos),
-                encoderTicksToInches(rightPos),
-                encoderTicksToInches(frontPos)
+                encoderTicksToInches(leftPos) * Xmult,
+                encoderTicksToInches(rightPos) * Xmult,
+                encoderTicksToInches(frontPos) * Ymult
         );
     }
 
@@ -91,9 +96,9 @@ public class StandardTrackingWheelLocalizer extends ThreeTrackingWheelLocalizer 
         lastEncVels.add(frontVel);
 
         return Arrays.asList(
-                encoderTicksToInches(leftVel),
-                encoderTicksToInches(rightVel),
-                encoderTicksToInches(frontVel)
+                encoderTicksToInches(leftVel) * Xmult,
+                encoderTicksToInches(rightVel) * Xmult,
+                encoderTicksToInches(frontVel) * Ymult
         );
     }
 }

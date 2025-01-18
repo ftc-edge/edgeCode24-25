@@ -56,7 +56,7 @@
   */
  
  @Autonomous()
- public class ParkAuto extends LinearOpMode {
+ public class parkAuto extends LinearOpMode {
  
      /* Declare OpMode members. */
      private DcMotor FRmotor;
