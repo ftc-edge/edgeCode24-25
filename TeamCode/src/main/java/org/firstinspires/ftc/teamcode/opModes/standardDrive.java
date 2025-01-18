@@ -55,8 +55,6 @@ public class standardDrive extends OpMode {
 
     float extensionLimit = 0f;
 
-    float extensionLimit = 0f;
-
     float slideMotorPosition;
     float initSlideMotorPosition;
     float horSlideMotorPosition;
@@ -166,23 +164,23 @@ public class standardDrive extends OpMode {
 
         */
 
-        FRmotor = hardwareMap.get(DcMotor.class, "FRmotor");
+        FRmotor = hardwareMap.get(DcMotor.class, "rightFront");
         FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         FRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        FLmotor = hardwareMap.get(DcMotor.class, "FLmotor");
+        FLmotor = hardwareMap.get(DcMotor.class, "leftFront");
         FLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         FLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        BRmotor = hardwareMap.get(DcMotor.class, "BRmotor");
+        BRmotor = hardwareMap.get(DcMotor.class, "rightRear");
         BRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
-        BLmotor = hardwareMap.get(DcMotor.class, "BLmotor");
+        BLmotor = hardwareMap.get(DcMotor.class, "leftRear");
         BLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         BLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
