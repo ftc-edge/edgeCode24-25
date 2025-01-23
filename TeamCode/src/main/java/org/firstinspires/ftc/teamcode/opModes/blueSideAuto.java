@@ -1,21 +1,23 @@
-package org.firstinspires.ftc.teamcode.drive.opmode;
+package org.firstinspires.ftc.teamcode.opModes;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-
-/*
- * This is an example of a more complex path to really test the tuning.
- */
-@Autonomous(group = "drive")
-public class SplineTest extends LinearOpMode {
-    @Override
+@Autonomous
+public class blueSideAuto extends LinearOpMode{
+    private DcMotor slideMotor;
     public void runOpMode() throws InterruptedException {
+
+        slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
+        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         Pose2d startPose = new Pose2d(40, 40, Math.toRadians(180));
@@ -32,12 +34,8 @@ public class SplineTest extends LinearOpMode {
 
         drive.followTrajectory(traj);
 
-        sleep(2000);
 
-        drive.followTrajectory(
-                drive.trajectoryBuilder(traj.end(), true)
-                        .splineToConstantHeading(new Vector2d(40, 40), Math.toRadians(180))
-                        .build()
-        );
+
     }
+
 }

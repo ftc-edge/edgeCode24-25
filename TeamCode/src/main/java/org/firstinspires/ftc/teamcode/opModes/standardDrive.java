@@ -166,23 +166,23 @@ public class standardDrive extends OpMode {
 
         FRmotor = hardwareMap.get(DcMotor.class, "rightFront");
         FRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FRmotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         FLmotor = hardwareMap.get(DcMotor.class, "leftFront");
         FLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        FLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        FLmotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         FLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         BRmotor = hardwareMap.get(DcMotor.class, "rightRear");
         BRmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BRmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        BRmotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BRmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
 
         BLmotor = hardwareMap.get(DcMotor.class, "leftRear");
         BLmotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        BLmotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        BLmotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         FLmotor.setDirection(DcMotor.Direction.REVERSE);
@@ -191,11 +191,14 @@ public class standardDrive extends OpMode {
         // initSlideMotorPosition = slideMotor.getCurrentPosition();
         slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
         slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideMotor.setTargetPosition(537);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        slideMotor.setDirection(DcMotor.Direction.REVERSE);
 
         underSlide = hardwareMap.get(DcMotor.class, "underSlide");
         underSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        underSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        //underSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -278,6 +281,10 @@ public class standardDrive extends OpMode {
         else if(gamepad2.x){
             pickup();
         }
+        if(gamepad1.b){
+            doVertSlideSetPos(1074);
+        }
+
         // if(gamepad2.b){
         //     toggleOuttakeClaw();
         // }
@@ -311,7 +318,7 @@ public class standardDrive extends OpMode {
 
         slideMotorPower = vertSlideLimiter * (gamepad2.left_trigger - gamepad2.right_trigger);
 
-        doVertSlides(slideMotorPower);
+        //doVertSlides(slideMotorPower);
         // horSlideMotorPosition = intakeMotor.getCurrentPosition();
         telemetry.addData("intakeMotorPosition", -horSlideMotorPosition);
         telemetry.addData("initial", -initHorSlideMotorPosition);
@@ -479,7 +486,12 @@ public class standardDrive extends OpMode {
             
         }
         underSlide.setPower(target);
-        // slideMotor.setPower(target);
+        slideMotor.setPower(target);
+    }
+
+    private void doVertSlideSetPos(int targetPos){
+        slideMotor.setTargetPosition(targetPos);
+        slideMotor.setPower(0.1);
     }
 
     private void doHorSlides(float target){
