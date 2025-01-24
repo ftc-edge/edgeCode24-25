@@ -318,12 +318,14 @@ public class standardDrive extends OpMode {
 
         slideMotorPower = vertSlideLimiter * (gamepad2.left_trigger - gamepad2.right_trigger);
 
-        //doVertSlides(slideMotorPower);
+        doVertSlides(slideMotorPower);
         // horSlideMotorPosition = intakeMotor.getCurrentPosition();
         telemetry.addData("intakeMotorPosition", -horSlideMotorPosition);
         telemetry.addData("initial", -initHorSlideMotorPosition);
         // telemetry.addData("true or false", lessorequals((float) -horSlideMotorPosition, (float) -initHorSlideMotorPosition));
         doHorSlides(gamepad2.left_stick_y);
+
+
     }
 
 

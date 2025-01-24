@@ -7,20 +7,25 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+
 @Autonomous
 public class blueSideAuto extends LinearOpMode{
-    private DcMotor slideMotor;
+    private DcMotorEx slideMotor;
     public void runOpMode() throws InterruptedException {
 
-        slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
-        slideMotor.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
+        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor.setTargetPosition(1600);
+        slideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+        slideMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        Pose2d startPose = new Pose2d(40, 40, Math.toRadians(180));
+        Pose2d startPose = new Pose2d(0, -65, Math.toRadians(-90));
 
         drive.setPoseEstimate(startPose);
 
@@ -28,14 +33,32 @@ public class blueSideAuto extends LinearOpMode{
 
         if (isStopRequested()) return;
 
-        Trajectory traj = drive.trajectoryBuilder(startPose)
-                .splineToConstantHeading(new Vector2d(30, 20), Math.toRadians(180))
+        TrajectorySequence traj = drive.trajectorySequenceBuilder(startPose)
+                .back(32)
+                .waitSeconds(2)
+                .splineTo(new Vector2d(5,-35), Math.toRadians(0))
+                .waitSeconds(1)
+                .splineTo(new Vector2d(46, -12), Math.toRadians(90))
+//                .back(42)
+//                .forward(42)
+//                .strafeRight(12)
+//                .back(42)
                 .build();
 
-        drive.followTrajectory(traj);
+        drive.followTrajectorySequence(traj);
 
 
 
+    }
+
+    public void specimenPos(){
+        slideMotor.setTargetPosition(1600);
+        slideMotor.setPower(0.6);
+    }
+
+    public void retract(){
+        slideMotor.setTargetPosition(0);
+        slideMotor.setPower(0.4);
     }
 
 }
