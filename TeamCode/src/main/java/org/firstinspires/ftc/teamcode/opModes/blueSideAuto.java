@@ -24,13 +24,13 @@ public class blueSideAuto extends LinearOpMode{
 
         slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideMotor.setTargetPosition(2075);
+        slideMotor.setTargetPosition(-2075);
         slideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         underSlide = hardwareMap.get(DcMotorEx.class, "underSlide");
         underSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         underSlide.setDirection(DcMotorEx.Direction.REVERSE);
-        underSlide.setTargetPosition(2075);
+        underSlide.setTargetPosition(-2075);
         underSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 
 
