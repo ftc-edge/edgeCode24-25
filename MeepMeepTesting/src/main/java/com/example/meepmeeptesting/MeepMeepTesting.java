@@ -23,14 +23,10 @@ public class MeepMeepTesting {
                         .waitSeconds(1)
 //                        .lineTo(new Vector2d(0,35))
 //                        .turn(rad(90))
-                        .splineTo(new Vector2d(5,-35), Math.toRadians(0))
+                        .splineTo(new Vector2d(5,-43), Math.toRadians(0))
 //                        .forward(5)
-                        .splineTo(new Vector2d(38, -20), Math.toRadians(90))
-                        .splineTo(new Vector2d(46, -6), Math.toRadians(90))
-                        .back(42)
-                        .forward(42)
-                        .strafeRight(12)
-                        .back(42)
+//                        .splineTo(new Vector2d(38, -20), Math.toRadians(90))
+//                        .splineTo(new Vector2d(46, -6), Math.toRadians(90)
                         .build());
 
 
