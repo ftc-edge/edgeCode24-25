@@ -191,14 +191,13 @@ public class standardDrive extends OpMode {
         // initSlideMotorPosition = slideMotor.getCurrentPosition();
         slideMotor = hardwareMap.get(DcMotor.class, "slideMotor");
         slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slideMotor.setTargetPosition(537);
         slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         slideMotor.setDirection(DcMotor.Direction.REVERSE);
 
         underSlide = hardwareMap.get(DcMotor.class, "underSlide");
         underSlide.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        //underSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        underSlide.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         intakeMotor = hardwareMap.get(DcMotor.class, "intakeMotor");
         intakeMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -281,9 +280,9 @@ public class standardDrive extends OpMode {
         else if(gamepad2.x){
             pickup();
         }
-        if(gamepad1.b){
-            doVertSlideSetPos(1074);
-        }
+//        if(gamepad1.b){
+//            doVertSlideSetPos(1074);
+//        }
 
         // if(gamepad2.b){
         //     toggleOuttakeClaw();
