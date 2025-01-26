@@ -285,6 +285,9 @@ public class standardDrive extends OpMode {
         else if(gamepad2.x){
             pickup();
         }
+        else if(gamepad2.b){
+            specimen();
+        }
 //        if(gamepad1.b){
 //            doVertSlideSetPos(1074);
 //        }
@@ -364,18 +367,13 @@ public class standardDrive extends OpMode {
         fing1Position = 0.8f;
         fing2Position = 0.4f;
     }
-    private void neutral(){
-        // I've commented the two lines out just to use this function as a "open claw" function
-
-        // outShoPosition = 0.5f;
-        // outWriPosition = 0f;
-
-        openOuttakeClaw();
+    private void specimen(){
+        outWriPosition = 0.22f;
+        outShoPosition = 0.1f;
     }
     private void pickup(){
         outShoPosition = 0.257f;
         outWriPosition = 0.972f;
-        closeOuttakeClaw();
     }
 
     private void servoControl(){
