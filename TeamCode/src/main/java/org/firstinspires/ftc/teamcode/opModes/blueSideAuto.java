@@ -11,6 +11,8 @@ import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import org.firstinspires.ftc.teamcode.opModes.standardDrive;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
@@ -41,14 +43,15 @@ public class blueSideAuto extends LinearOpMode {
     private Servo clawFinger2;
     private Servo clawWrist;
 
+    private ElapsedTime runtime = new ElapsedTime();
+
     public void runOpMode() throws InterruptedException {
 
         slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
-        slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideMotor.setTargetPosition(537);
-        slideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        slideMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        slideMotor.setDirection(DcMotorEx.Direction.REVERSE);
+        slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+
 //        underSlide = hardwareMap.get(DcMotorEx.class, "underSlide");
 //        underSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        underSlide.setDirection(DcMotorEx.Direction.REVERSE);
@@ -59,7 +62,6 @@ public class blueSideAuto extends LinearOpMode {
         outWrist = hardwareMap.get(Servo.class, "outWrist");
         outFinger1 = hardwareMap.get(Servo.class, "outFinger1");
         outFinger2 = hardwareMap.get(Servo.class, "outFinger2");
-
 
         clawShoulder = hardwareMap.get(Servo.class, "clawShoulder");
         clawElbow = hardwareMap.get(Servo.class, "clawElbow");
@@ -72,8 +74,11 @@ public class blueSideAuto extends LinearOpMode {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         Pose2d startPose = new Pose2d(0, -65, Math.toRadians(-90));
+        Pose2d currentPose = drive.getPoseEstimate();
 
         drive.setPoseEstimate(startPose);
+
+        waitForStart();
 
         outFinger1.setPosition(0.3);
         outFinger2.setPosition(0.3);
@@ -81,20 +86,16 @@ public class blueSideAuto extends LinearOpMode {
         clawWrist.setPosition(0.1);
         clawElbow.setPosition(0.69);
         clawShoulder.setPosition(0.434);
-        clawFinger1.setPosition(0.8);
-        clawFinger2.setPosition(0.4);
-
-        waitForStart();
+        clawFinger1.setPosition(0.15);
+        clawFinger2.setPosition(0.15);
 
         if (isStopRequested()) return;
-
-
 
         while (opModeIsActive()) {
 
             drive.update();
 
-            Pose2d currentPose = drive.getPoseEstimate();
+            currentPose = drive.getPoseEstimate();
 
 //        TrajectorySequence traj = drive.trajectorySequenceBuilder(startPose)
 //                .back(28)
@@ -106,12 +107,17 @@ public class blueSideAuto extends LinearOpMode {
 //                .build();
 
             TrajectorySequence backTraj = drive.trajectorySequenceBuilder(startPose)
-                    .back(23)
+                    .back(17)
                     .build();
 
-            TrajectorySequence hook = drive.trajectorySequenceBuilder(currentPose)
-                    .forward(5)
+            TrajectorySequence backTraj2 = drive.trajectorySequenceBuilder(new Pose2d(0, -48, Math.toRadians(-90)))
+                    .back(10)
                     .build();
+
+            TrajectorySequence hook = drive.trajectorySequenceBuilder(new Pose2d(0, -38, Math.toRadians(-90)))
+                    .forward(21)
+                    .build();
+
 
             TrajectorySequence smallBuffer = drive.trajectorySequenceBuilder(currentPose)
                     .waitSeconds(0.1)
@@ -121,15 +127,24 @@ public class blueSideAuto extends LinearOpMode {
                     .waitSeconds(0.3)
                     .build();
 
+            TrajectorySequence bufferForSwing = drive.trajectorySequenceBuilder(new Pose2d(0, -48, Math.toRadians(-90)))
+                    .waitSeconds(0.9)
+                    .build();
+
+            TrajectorySequence bufferAfterHook = drive.trajectorySequenceBuilder(new Pose2d(0, -55, Math.toRadians(-90)))
+                    .waitSeconds(0.9)
+                    .build();
+
+
             TrajectorySequence largeBuffer = drive.trajectorySequenceBuilder(currentPose)
                     .waitSeconds(1)
                     .build();
 
-            TrajectorySequence mitchellTraj = drive.trajectorySequenceBuilder(currentPose)
+            TrajectorySequence mitchellTraj = drive.trajectorySequenceBuilder(new Pose2d(0, -55, Math.toRadians(-90)))
                     .splineToSplineHeading(new Pose2d(5, -50), Math.toRadians(0))
                     .waitSeconds(0.1)
-                    .splineToSplineHeading(new Pose2d(52, -56, Math.toRadians(90)), Math.toRadians(0))
-                    .back(7)
+                    .splineToSplineHeading(new Pose2d(55, -56, Math.toRadians(90)), Math.toRadians(0))
+                    .back(12)
                     .build();
 
             TrajectorySequence mitchellPickup = drive.trajectorySequenceBuilder(currentPose)
@@ -150,9 +165,19 @@ public class blueSideAuto extends LinearOpMode {
             drive.followTrajectorySequence(backTraj);
             //PLACING SPECIMEN
             specimenPos();
-            outShoulder.setPosition(0.15);
+            swingOut();
+            drive.followTrajectorySequence(bufferForSwing);
+            drive.followTrajectorySequence(backTraj2);
+            outShoulder.setPosition(0.135);
             drive.followTrajectorySequence(hook);
             openFinger();
+            outShoulder.setPosition(0.1);
+            drive.followTrajectorySequence(bufferAfterHook);
+            outtakePassoff();
+            retract();
+            drive.followTrajectorySequence(mitchellTraj);
+            /*
+            openFinger();]]
             retract();
             //HEADING TOWARDS MITCHELL
             drive.followTrajectorySequence(buffer);
@@ -239,43 +264,41 @@ public class blueSideAuto extends LinearOpMode {
             retract();
             //PARK
             drive.followTrajectorySequence(mitchellTraj);
-
-
-
-
-
-
-
-
-
-
-
-
-
+            */
 
 //    public void loop(){
 //        telemetry.addData("slideMotorPosition", slideMotor.getCurrentPosition());
 //        telemetry.addData("underSLidePosition", underSlide.getCurrentPosition());
 //        telemetry.update();
 //    }
-
+        return;
 
         }
     }
 
     private void specimenPos() {
-        slideMotor.setTargetPosition(2075);
-//        underSlide.setTargetPosition(2075);
-        slideMotor.setPower(0.1);
-//        underSlide.setPower(0.5);
+        runtime.reset();
+        slideMotor.setPower(0.5);
+        while ((runtime.seconds() < 1)) {
+            telemetry.addData("Path", "Leg 1: Elapsed", runtime.seconds());
+            telemetry.update();
+        }
+        slideMotor.setPower(0);
+    }
+
+    private void swingOut(){
         outShoulder.setPosition(0.1);
         outWrist.setPosition(0.22);
     }
 
-
     public void retract() {
-        slideMotor.setTargetPosition(100);
-        slideMotor.setPower(-0.1);
+        runtime.reset();
+        slideMotor.setPower(-0.5);
+        while ((runtime.seconds() < 0.85)) {
+            telemetry.addData("Path", "Leg 3: Elapsed", runtime.seconds());
+            telemetry.update();
+        }
+        slideMotor.setPower(0);
     }
 
     public void closeFinger(){

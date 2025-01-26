@@ -10,6 +10,7 @@ import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.*;
 @TeleOp
@@ -17,24 +18,51 @@ public class slideEncoderTest extends OpMode{
 
     private DcMotorEx slideMotor;
     private DcMotorEx slideMotor2;
+    private Servo outShoulder;
+    private Servo outWrist;
 
+    private ElapsedTime runtime = new ElapsedTime();
     private int slideMotorPos;
 
     public void init() {
         slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
-        slideMotor.setMode((DcMotorEx.RunMode.STOP_AND_RESET_ENCODER));
-        slideMotor2 = hardwareMap.get(DcMotorEx.class, "underSlide");
-        slideMotor2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
-        slideMotor2.setDirection(DcMotorSimple.Direction.REVERSE);
-        slideMotor.setTargetPosition(0);
-        slideMotor2.setTargetPosition(0);
-        slideMotor.setPower(-0.01);
-        slideMotor2.setPower(-0.01);
-        slideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        slideMotor2.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        slideMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        slideMotor2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        outShoulder = hardwareMap.get(Servo.class, "outShoulder");
+        outWrist = hardwareMap.get(Servo.class, "outWrist");
+
+        outShoulder.setPosition(0.1);
+        outWrist.setPosition(0.22);
+
+        runtime.reset();
+        while (runtime.seconds() < 0.8) {
+            telemetry.addData("Path", "Waiting", runtime.seconds());
+            telemetry.update();
+        }
+
+        runtime.reset();
+        slideMotor.setPower(0.5);
+        while ((runtime.seconds() < 1)) {
+            telemetry.addData("Path", "Leg 1: Elapsed", runtime.seconds());
+            telemetry.update();
+        }
+        slideMotor.setPower(0);
+
+        runtime.reset();
+        while (runtime.seconds() < 5) {
+            telemetry.addData("Path", "Waiting", runtime.seconds());
+            telemetry.update();
+        }
+
+        runtime.reset();
+        slideMotor.setPower(-0.5);
+        while ((runtime.seconds() < 0.9)) {
+            telemetry.addData("Path", "Leg 3: Elapsed", runtime.seconds());
+            telemetry.update();
+        }
+        slideMotor.setPower(0);
 
     }
 
@@ -44,7 +72,5 @@ public class slideEncoderTest extends OpMode{
         telemetry.addData("Under Slide: ", slideMotor2.getCurrentPosition());
         telemetry.addData("time", System.nanoTime());
         telemetry.update();
-
-        slideMotor.setTargetPosition((int) gamepad1.right_trigger * 300);
     }
 }

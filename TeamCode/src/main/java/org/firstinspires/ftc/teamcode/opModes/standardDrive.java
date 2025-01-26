@@ -237,6 +237,11 @@ public class standardDrive extends OpMode {
     }
 
     private void closeIntakeClaw(){
+        fing1Position = 0.5f;
+        fing2Position = 0.85f;
+    }
+
+    private void closeIntakeClaw2(){
         fing1Position = 0.43f;
         fing2Position = 0.95f;
     }
@@ -435,6 +440,7 @@ public class standardDrive extends OpMode {
         if(gamepad2.dpad_right){
             outWriPosition -= 0.001f;
         }
+
         if(gamepad2.dpad_up){
             hangMode = false;
         }
@@ -498,7 +504,7 @@ public class standardDrive extends OpMode {
     private void doHorSlides(float target){
         if(extensionLimit < 100){
             extensionLimit += target;
-            intakeMotor.setPower(target);
+//            intakeMotor.setPower(target);
         }
     }
 

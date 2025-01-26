@@ -74,8 +74,8 @@
     public Servo clawFinger2;
      public Servo clawElbow;
      public Servo clawWrist;
+
      private ElapsedTime runtime = new ElapsedTime();
- 
  
      static final double FORWARD_SPEED = 0.45;
      static final double TURN_SPEED = 0.5;
