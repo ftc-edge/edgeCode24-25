@@ -15,6 +15,16 @@ import org.firstinspires.ftc.teamcode.opModes.standardDrive;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
+/*
+PROCEDURE
+ - Move Back, to Hook
+ - Rotate slide up, Rotate arm & wrist
+ - Drive forward, decrease grip on block
+ - Release grip, rotate arm back
+ - Drive to human player area (Puts in specimen)
+ - Return to position and repeat
+ */
+
 @Autonomous
 public class blueSideAuto extends LinearOpMode{
     private DcMotorEx slideMotor;
@@ -24,18 +34,20 @@ public class blueSideAuto extends LinearOpMode{
 
         slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
         slideMotor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        slideMotor.setTargetPosition(-2075);
+        telemetry.addData("position", slideMotor.getCurrentPosition());
+        telemetry.update();
+        slideMotor.setTargetPosition(0);
         slideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         slideMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
-        underSlide = hardwareMap.get(DcMotorEx.class, "underSlide");
-        underSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        underSlide.setDirection(DcMotorEx.Direction.REVERSE);
-        underSlide.setTargetPosition(-2075);
-        underSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-
+//        underSlide = hardwareMap.get(DcMotorEx.class, "underSlide");
+//        underSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        underSlide.setDirection(DcMotorEx.Direction.REVERSE);
+//        underSlide.setTargetPosition(0);
+//        underSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
 
         outShoulder = hardwareMap.get(Servo.class, "outShoulder");
-
+        telemetry.addData("position", slideMotor.getCurrentPosition());
+        telemetry.update();
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         Pose2d startPose = new Pose2d(0, -65, Math.toRadians(-90));
@@ -79,21 +91,25 @@ public class blueSideAuto extends LinearOpMode{
                 .build();
 
         drive.followTrajectorySequence(backTraj);
+        slideMotor.setTargetPosition(300);
         specimenPos();
         outShoulder.setPosition(0.1);
         drive.followTrajectorySequence(wait);
 
         //drive.followTrajectorySequence(traj);
-
-
-
     }
+
+//    public void loop(){
+//        telemetry.addData("slideMotorPosition", slideMotor.getCurrentPosition());
+//        telemetry.addData("underSLidePosition", underSlide.getCurrentPosition());
+//        telemetry.update();
+//    }
 
     public void specimenPos() {
         slideMotor.setTargetPosition(2075);
-        underSlide.setTargetPosition(2075);
+//        underSlide.setTargetPosition(2075);
         slideMotor.setPower(0.5);
-        underSlide.setPower(0.5);
+//        underSlide.setPower(0.5);
         outShoulder.setPosition(0.1);
     }
 
