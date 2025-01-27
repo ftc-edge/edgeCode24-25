@@ -1,6 +1,9 @@
 package org.firstinspires.ftc.teamcode.opModes;
 
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
@@ -355,14 +358,12 @@ public class standardDrive extends OpMode {
 
     private void passoff(){
         outShoPosition = 0.593f;
-        outWriPosition = 0.479f;
+        outWriPosition = 1.0f;
         closeOuttakeClaw();
     }
     private void place(){
         // Rotate arm above robot
         outShoPosition = 0.98f;
-        outWriPosition = 0.22f;
-
         // Opens the fingers1 just in case
         fing1Position = 0.8f;
         fing2Position = 0.4f;
@@ -433,10 +434,12 @@ public class standardDrive extends OpMode {
         }
 
         if(gamepad2.dpad_left){
-            outWriPosition += 0.001f;
+            outWriPosition += 0.002f;
+            outWriPosition = min(1.0f, outWriPosition);
         }
         if(gamepad2.dpad_right){
-            outWriPosition -= 0.001f;
+            outWriPosition -= 0.002f;
+            outWriPosition = max(0f, outWriPosition);
         }
 
         if(gamepad2.dpad_up){
@@ -459,10 +462,10 @@ public class standardDrive extends OpMode {
 
     private void autoIntake(){
         if(gamepad1.x && !isPassing){
-            if(shoPosition!= 0.434f && elbPosition != 0.69f){
+            if(shoPosition!= 0.434f && elbPosition != 0.82f){
                 isPassing = true;
                 wriPosition = 0;
-                elbPosition = 0.69f;
+                elbPosition = 0.82f;
                 shoPosition = 0.434f;
                 // fing1Position = 0.4f;
                 // fing2Position = 0.98f;
@@ -486,7 +489,7 @@ public class standardDrive extends OpMode {
             target = -1;
             // TODO: Control Intake Claw such that it doesn't hit the ground, BELOW CODE TECHNICALLY SHOULD WORK
             wriPosition = 0;
-            elbPosition = 0.69f;
+            elbPosition = 0.82f;
             shoPosition = 0.434f;
             
         }
