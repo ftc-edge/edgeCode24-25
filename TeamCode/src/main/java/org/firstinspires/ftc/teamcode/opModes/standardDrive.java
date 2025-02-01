@@ -487,7 +487,6 @@ public class standardDrive extends OpMode {
     private void doVertSlides(float target){
         if(hangMode == true) {
             target = -1;
-            // TODO: Control Intake Claw such that it doesn't hit the ground, BELOW CODE TECHNICALLY SHOULD WORK
             wriPosition = 0;
             elbPosition = 0.82f;
             shoPosition = 0.434f;
