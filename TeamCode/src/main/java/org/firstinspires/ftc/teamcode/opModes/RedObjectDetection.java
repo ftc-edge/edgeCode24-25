@@ -6,6 +6,7 @@ import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfPoint;
+import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.RotatedRect;
@@ -96,7 +97,7 @@ public class RedObjectDetection extends LinearOpMode {
                 }
 
                 // Compute bounding rectangle
-                RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint(largestContour.toArray()));
+                RotatedRect rect = Imgproc.minAreaRect(new MatOfPoint2f(largestContour.toArray()));
                 Point[] boxPoints = new Point[4];
                 rect.points(boxPoints);
                 for (int i = 0; i < 4; i++) {
