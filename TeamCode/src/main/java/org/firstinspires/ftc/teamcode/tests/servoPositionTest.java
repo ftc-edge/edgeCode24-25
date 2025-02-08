@@ -147,13 +147,13 @@ public class servoPositionTest extends OpMode {
         if (gamepad1.y) {
             //passoff position
             intakePassoffPos();
-            sleep(1000);
-            wristServoPos = 0.55f;
+//            sleep(10000);
+//            wristServoPos = 0.55f;
         }
-        if (gamepad1.x) {
-            //neutral position
-            intakeNeutralPos();
-        }
+//        if (gamepad1.x) {
+//            //neutral position
+//            intakeNeutralPos();
+//        }
 
         if (gamepad2.x) {
             outtakePassoffPos();
@@ -205,7 +205,7 @@ public class servoPositionTest extends OpMode {
     public void sleep(int milis) {
         try {
             Thread.sleep(100);
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
     }
 }
 
