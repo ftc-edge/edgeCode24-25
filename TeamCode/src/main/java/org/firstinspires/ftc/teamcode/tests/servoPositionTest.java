@@ -21,18 +21,17 @@ public class servoPositionTest extends OpMode {
     public Servo lArm, rArm;
     public Servo outFinger1, outFinger2;
 
-    public float rArmservoPos = 0;
     public float lArmServoPos = 0;
 
     public float outFing1Pos = 0.8f;
     public float outFing2Pos = 0.5f;
     public float inFingPos = 0.0f;
     public float wristServoPos = 0;
-    public float outShoulderPos = 0.811f ;
+    public float outShoulderPos = 0.33f;
 
-    public void boundValues(){
+    public void boundValues() {
         wristServoPos = max(0, min(1, wristServoPos));
-        rArmservoPos = max(0, min(1, rArmservoPos));
+//        rArmservoPos = max(0, min(1, rArmservoPos));
         lArmServoPos = max(0, min(1, lArmServoPos));
         outShoulderPos = max(0.30f, min(1, outShoulderPos));
         outFing1Pos = max(0, min(1, outFing1Pos));
@@ -40,53 +39,53 @@ public class servoPositionTest extends OpMode {
         inFingPos = max(0, min(1, inFingPos));
     }
 
-    public void openOutClaw(){
+    public void openOutClaw() {
         outFing1Pos = 0.5f;
         outFing2Pos = 0.8f;
     }
 
-    public void closeOutClaw(){
+    public void closeOutClaw() {
         outFing1Pos = 0.8f;
         outFing2Pos = 0.5f;
     }
 
-    public void openInClaw(){
+    public void openInClaw() {
         inFingPos = 0.0f;
     }
 
-    public void closeInClaw(){
+    public void closeInClaw() {
         inFingPos = 0.2f;
     }
 
-    public void outtakePlacePos(){
+    public void outtakePlacePos() {
         outShoulderPos = 0.33f;
     }
 
-    public void outtakePassoffPos(){
+    public void outtakePassoffPos() {
         outShoulderPos = 0.811f;
     }
 
-    public void outtakeSpecimenPos(){
+    public void outtakeSpecimenPos() {
         outShoulderPos = 0.628f;
     }
 
-    public void intakePassoffPos(){
+    public void intakeGroundPos() {
         wristServoPos = 0.9f;
-        rArmservoPos = 0.0f;
+//        rArmservoPos = 0;
         lArmServoPos = 0.0f;
     }
 
-    public void intakeNeutralPos(){
-        rArmservoPos = 0.2f;
-        lArmServoPos = 0.5f;
+    public void intakeNeutralPos() {
+//        rArmservoPos = 0.2f;
+        lArmServoPos = 0.2f;
     }
 
-    public void intakeGroundPos(){
-        rArmservoPos = 0.30f;
+    public void intakePassoffPos() {
+//        rArmservoPos = 0.30f;
         lArmServoPos = 0.64f;
     }
 
-    public void init(){
+    public void init() {
         outShoulder = hardwareMap.get(Servo.class, "outShoulder");
         outWrist = hardwareMap.get(Servo.class, "outWrist");
         outFinger1 = hardwareMap.get(Servo.class, "outFinger1");
@@ -99,7 +98,7 @@ public class servoPositionTest extends OpMode {
     }
 
 
-    public void loop(){
+    public void loop() {
 //        outShoulder.setPosition(0);
 //        if(gamepad1.a){
 //            outWrist.setPosition(0);
@@ -122,63 +121,62 @@ public class servoPositionTest extends OpMode {
 //        if(gamepad1.dpad_left){
 //            inFinger.setPosition(0);
 //        }
-        if(gamepad1.dpad_down){
-            inFingPos -= 0.002f;
+        if (gamepad1.dpad_down) {
+            lArmServoPos -= 0.001f;
         }
-        if(gamepad1.dpad_up){
-            inFingPos += 0.002f;
+        if (gamepad1.dpad_up) {
+            lArmServoPos += 0.001f;
         }
 
-        if(gamepad1.dpad_left){
+        if (gamepad1.dpad_left) {
             wristServoPos += 0.002f;
         }
-        if(gamepad1.dpad_right){
+        if (gamepad1.dpad_right) {
             wristServoPos -= 0.002f;
         }
 
-        if(gamepad1.a){
+        if (gamepad1.a) {
             //floor position
             intakeGroundPos();
         }
-        if(gamepad1.b){
+        if (gamepad1.b) {
             //just above floor
-            rArmservoPos = 0.27f;
-            lArmServoPos = 0.58f;
+//            rArmservoPos = 0.27f;
+            lArmServoPos = 0.1f;
         }
-        if(gamepad1.y){
+        if (gamepad1.y) {
             //passoff position
             intakePassoffPos();
+            sleep(1000);
+            wristServoPos = 0.55f;
         }
-        if(gamepad1.x){
+        if (gamepad1.x) {
             //neutral position
             intakeNeutralPos();
         }
-        if(gamepad1.y){
-            wristServoPos = 0.55f;
-        }
 
-        if(gamepad2.x){
+        if (gamepad2.x) {
             outtakePassoffPos();
         }
-        if(gamepad2.y){
+        if (gamepad2.y) {
             outtakePlacePos();
         }
-        if(gamepad2.a){
+        if (gamepad2.a) {
             outtakeSpecimenPos();
         }
-        if(gamepad1.left_bumper){
+        if (gamepad1.left_bumper) {
             openInClaw();
         }
 
-        if(gamepad1.right_bumper){
+        if (gamepad1.right_bumper) {
             closeInClaw();
         }
 
-        if(gamepad2.left_bumper){
+        if (gamepad2.left_bumper) {
             openOutClaw();
         }
 
-        if(gamepad2.right_bumper){
+        if (gamepad2.right_bumper) {
             closeOutClaw();
         }
 
@@ -186,7 +184,7 @@ public class servoPositionTest extends OpMode {
         boundValues();
 
         lArm.setPosition(lArmServoPos);
-        rArm.setPosition(rArmservoPos);
+        rArm.setPosition(1 - lArmServoPos);
         inWrist.setPosition(wristServoPos);
         outShoulder.setPosition(outShoulderPos);
         outFinger1.setPosition(outFing1Pos);
@@ -199,9 +197,15 @@ public class servoPositionTest extends OpMode {
         telemetry.addData("outFinger1 Servo Position", outFing1Pos);
         telemetry.addData("outFinger2 Servo Position", outFing2Pos);
         telemetry.addData("lArm Servo Position", lArmServoPos);
-        telemetry.addData("rArm Servo Position", rArmservoPos);
+//        telemetry.addData("rArm Servo Position", rArmservoPos);
         telemetry.update();
 
+    }
+
+    public void sleep(int milis) {
+        try {
+            Thread.sleep(100);
+        } catch (Exception e) {}
     }
 }
 
