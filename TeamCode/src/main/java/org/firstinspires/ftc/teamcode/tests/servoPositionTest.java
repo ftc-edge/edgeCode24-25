@@ -31,7 +31,7 @@ public class servoPositionTest extends OpMode {
 
     public void boundValues() {
         wristServoPos = max(0, min(1, wristServoPos));
-//        rArmservoPos = max(0, min(1, rArmservoPos));
+        // rArmservoPos = max(0, min(1, rArmservoPos));
         lArmServoPos = max(0, min(1, lArmServoPos));
         outShoulderPos = max(0.30f, min(1, outShoulderPos));
         outFing1Pos = max(0, min(1, outFing1Pos));
@@ -204,7 +204,7 @@ public class servoPositionTest extends OpMode {
 
     public void sleep(int milis) {
         try {
-            Thread.sleep(milis);
+            Thread.sleep(100);
         } catch (Exception ignored) {}
     }
 }
