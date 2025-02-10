@@ -204,7 +204,7 @@ public class servoPositionTest extends OpMode {
 
     public void sleep(int milis) {
         try {
-            Thread.sleep(100);
+            Thread.sleep(milis);
         } catch (Exception ignored) {}
     }
 }

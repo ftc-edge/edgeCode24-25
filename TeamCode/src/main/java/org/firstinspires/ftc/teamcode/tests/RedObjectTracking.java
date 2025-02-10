@@ -7,6 +7,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.imgproc.Moments;
 import org.openftc.easyopencv.*;
 
 import java.util.ArrayDeque;
@@ -25,7 +26,7 @@ public class RedObjectTracking extends LinearOpMode {
                 "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
         webcam = OpenCvCameraFactory.getInstance().createWebcam(
-                hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+                hardwareMap.get(WebcamName.class, "logiCam"), cameraMonitorViewId);
 
         webcam.setPipeline(redPipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
@@ -103,7 +104,9 @@ public class RedObjectTracking extends LinearOpMode {
 
             if (largestContour != null) {
                 // Draw largest contour
-                Imgproc.drawContours(input, List.of(largestContour), 0, new Scalar(0, 0, 255), 2);
+                List<MatOfPoint> largestContoursList = new ArrayList<>();
+                largestContoursList.add(largestContour);
+                Imgproc.drawContours(input, largestContoursList, 0, new Scalar(0, 0, 255), 2);
 
                 // Compute the center of mass
                 Moments M = Imgproc.moments(largestContour);

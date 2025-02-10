@@ -2,75 +2,156 @@ package org.firstinspires.ftc.teamcode.tests;
 
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.hardware.CRServo;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.hardware.dfrobot.HuskyLens;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-import java.util.*;
 @TeleOp
-public class slideEncoderTest extends OpMode{
+public class slideEncoderTest extends OpMode {
 
     private DcMotorEx slideMotor;
     private DcMotorEx slideMotor2;
+    private DcMotorEx horSlide;
     private Servo outShoulder;
     private Servo outWrist;
 
     private ElapsedTime runtime = new ElapsedTime();
     private int slideMotorPos;
+    private int slideMotor2Pos;
+    private int horSlidePos;
+
+    private int OUTTAKESPECIMENPOS = 1560;
+    private int slideMotorTarget = 0;
+    private int horSlideTarget = 0;
+
+    public void moveVertSlides(int target){
+        slideMotor.setTargetPosition(target);
+        slideMotor2.setTargetPosition(target);
+    }
+
+    public void moveVertSlides(int target, double power){
+        slideMotor.setPower(power);
+        slideMotor2.setPower(power);
+        if(motorA){
+            slideMotor.setTargetPosition(target);
+        }
+        if(motorB){
+            slideMotor2.setTargetPosition(target);
+        }
+    }
+
+    public void moveHorSlides(int target, double power){
+        horSlide.setPower(power);
+        if(motorHor){
+            horSlide.setTargetPosition(target);
+        }
+    }
+
+    boolean motorA = true;
+    boolean motorB = true;
+    boolean motorHor = true;
 
     public void init() {
+        if(gamepad1.dpad_right){
+            motorHor = false;
+        }
+        if(gamepad1.dpad_down){
+            motorA = false;
+        }
+        if(gamepad2.dpad_down){
+            motorB = false;
+        }
+
         slideMotor = hardwareMap.get(DcMotorEx.class, "slideMotor");
-        slideMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        slideMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+        slideMotor2 = hardwareMap.get(DcMotorEx.class, "underSlide");
+        horSlide = hardwareMap.get(DcMotorEx.class, "intakeMotor");
 
-        outShoulder = hardwareMap.get(Servo.class, "outShoulder");
-        outWrist = hardwareMap.get(Servo.class, "outWrist");
+        slideMotor.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        slideMotor2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
+        horSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        outShoulder.setPosition(0.1);
-        outWrist.setPosition(0.22);
+        if(motorA){
+            slideMotor.setTargetPosition(0);
+            slideMotor.setDirection(DcMotorSimple.Direction.REVERSE);
+            slideMotor.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+            slideMotor.setPower(0.1);
+            slideMotor.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        }
 
-        runtime.reset();
-        while (runtime.seconds() < 0.8) {
-            telemetry.addData("Path", "Waiting", runtime.seconds());
-            telemetry.update();
+        if(motorB){
+            slideMotor2.setTargetPosition(0);
+            slideMotor2.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+            slideMotor2.setPower(0.1);
+            slideMotor2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        }
+
+        if(motorHor){
+            horSlide.setTargetPosition(0);
+            horSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+            horSlide.setPower(0.1);
+            horSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
         }
 
         runtime.reset();
-        slideMotor.setPower(0.5);
-        while ((runtime.seconds() < 1)) {
-            telemetry.addData("Path", "Leg 1: Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-        slideMotor.setPower(0);
-
-        runtime.reset();
-        while (runtime.seconds() < 5) {
-            telemetry.addData("Path", "Waiting", runtime.seconds());
-            telemetry.update();
-        }
-
-        runtime.reset();
-        slideMotor.setPower(-0.5);
-        while ((runtime.seconds() < 0.9)) {
-            telemetry.addData("Path", "Leg 3: Elapsed", runtime.seconds());
-            telemetry.update();
-        }
-        slideMotor.setPower(0);
 
     }
 
     public void loop(){
         slideMotorPos = slideMotor.getCurrentPosition();
+        slideMotor2Pos = slideMotor2.getCurrentPosition();
+        horSlidePos = horSlide.getCurrentPosition();
+
         telemetry.addData("slide position", slideMotorPos);
-        telemetry.addData("Under Slide: ", slideMotor2.getCurrentPosition());
+        telemetry.addData("slide2 position", slideMotor2Pos);
+        telemetry.addData("horSlide Position", horSlidePos);
+        telemetry.addData("slide off/on", motorA);
+        telemetry.addData("slide2 off/on", motorB);
+        telemetry.addData("horSlide off/on", motorHor);
         telemetry.addData("time", System.nanoTime());
         telemetry.update();
+
+        boolean setTargetByDPAD = true;
+        if(setTargetByDPAD){
+            slideMotorTarget += gamepad1.dpad_up ? 3 : (gamepad1.dpad_down ? -3 : 0);
+            horSlideTarget += gamepad1.dpad_left ? 3 : (gamepad1.dpad_right ? -3 : 0);
+            moveVertSlides(slideMotorTarget, 0.5);
+            moveHorSlides(horSlideTarget, 0.5);
+            return;
+        }
+
+        if(gamepad1.a){
+            moveHorSlides(0, 0.3);
+        }
+
+        if(gamepad1.b){
+            moveHorSlides(300, 0.6);
+        }
+
+        if(gamepad1.x){
+            moveHorSlides(800, 0.5);
+        }
+
+        if(gamepad1.y){
+            moveHorSlides(300, 0.9);
+        }
+
+        if(gamepad1.left_bumper){
+            moveVertSlides(1000, 0.3);
+        }
+
+        if(gamepad1.right_bumper){
+            moveVertSlides(300, 0.9);
+        }
+
+        if(gamepad2.left_bumper) {
+            moveVertSlides(100, 0.3);
+        }
+        if(gamepad2.right_bumper) {
+            moveVertSlides(700, 0.9);
+        }
+
     }
 }
