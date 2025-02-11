@@ -18,10 +18,16 @@ public class Slides {
     private DcMotorEx vertSlide2;
     private DcMotorEx horSlide;
 
-    private static int VERTSLIDEMAXPOS = 2750;
-    private static int HORSLIDEMAXPOS = 1000;
-    private static int VERTSLIDEMINPOS = 0;
-    private static int HORSLIDEMINPOS = 0;
+    public static int VERTSLIDEMAXPOS = 3310;
+    public static int HORSLIDEMAXPOS = 1000;
+    public static int VERTSLIDEMINPOS = 0;
+    public static int HORSLIDEMINPOS = 0;
+
+    public static double initialVertSlidePower = 0.5f;
+    public static double initialHorSlidePower = 0.5f;
+
+    public static int specimenVertSlidePos = 2300;
+    public static double gotoSpecimenPosPower = 0.6;
 
     public Slides(HardwareMap hardwareMap){
         vertSlide = hardwareMap.get(DcMotorEx.class, "slideMotor");
@@ -35,17 +41,17 @@ public class Slides {
         vertSlide.setTargetPosition(0);
         vertSlide.setDirection(DcMotorEx.Direction.REVERSE);
         vertSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        vertSlide.setPower(0.1);
+        vertSlide.setPower(initialVertSlidePower);
         vertSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         vertSlide2.setTargetPosition(0);
         vertSlide2.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        vertSlide2.setPower(0.1);
+        vertSlide2.setPower(initialVertSlidePower);
         vertSlide2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
         horSlide.setTargetPosition(0);
         horSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        horSlide.setPower(0.1);
+        horSlide.setPower(initialHorSlidePower);
         horSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
     }
 
@@ -82,7 +88,19 @@ public class Slides {
         horSlide.setTargetPosition(target);
     }
 
+    public void vertSlidesSpecimenPos(){
+        moveVertSlides(specimenVertSlidePos, gotoSpecimenPosPower);
+    }
+
     public void horIncrement(int increment){
         horSlide.setTargetPosition(boundHor(horSlide.getTargetPosition() + increment));
+    }
+
+    public int getVertSlidePos(){
+        return vertSlide.getTargetPosition();
+    }
+
+    public int getHorSlidePosition(){
+        return horSlide.getTargetPosition();
     }
 }

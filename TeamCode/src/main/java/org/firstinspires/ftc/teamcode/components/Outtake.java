@@ -20,14 +20,16 @@ public class Outtake {
     public float outFing1Pos;
     public float outFing2Pos;
     public float outShoulderPos;
-    public float outWristPos;
+    public float outWristPos = 0f;
 
     public static float outShoulderPlacePos = 0.33f;
-    public static float outShoulderPassoffPos = 0.811f;
+    public static float outShoulderPassoffPos = 0.878f;
     public static float outShoulderSpecimenPos = 0.628f;
-    public static float outFing1OpenPos = 0.5f;
+    public static float outShoulderHookInPos = 0.6f;
+    public static float outWristPassoffPos = 0.34f;
+    public static float outFing1OpenPos = 0.15f;
     public static float outFing2OpenPos = 0.8f;
-    public static float outFing1ClosePos = 0.8f;
+    public static float outFing1ClosePos = 0.4f;
     public static float outFing2ClosePos = 0.5f;
 
     public Outtake(HardwareMap hardwareMap){
@@ -35,21 +37,24 @@ public class Outtake {
         outWrist = hardwareMap.get(Servo.class, "outWrist");
         outFinger1 = hardwareMap.get(Servo.class, "outFinger1");
         outFinger2 = hardwareMap.get(Servo.class, "outFinger2");
+
+        outtakePassoffPos();
+        closeOutClaw();
     }
 
     private void boundValues() {
-        outWristPos = max(0, min(1, outWristPos));
-        outShoulderPos = max(0.30f, min(1, outShoulderPos));
+        outWristPos = max(0.18f, min(1, outWristPos));
+        outShoulderPos = max(0, min(1, outShoulderPos));
         outFing1Pos = max(0, min(1, outFing1Pos));
         outFing2Pos = max(0, min(1, outFing2Pos));
     }
 
-    private void openOutClaw(){
+    public void openOutClaw(){
         outFing1Pos = outFing1OpenPos;
         outFing2Pos = outFing2OpenPos;
     }
 
-    private void closeOutClaw(){
+    public void closeOutClaw(){
         outFing1Pos = outFing1ClosePos;
         outFing2Pos = outFing2ClosePos;
     }
@@ -60,12 +65,17 @@ public class Outtake {
 
     public void outtakePassoffPos() {
         outShoulderPos = outShoulderPassoffPos;
+        outWristPos = outWristPassoffPos;
     }
 
     public void outtakeSpecimenPos() {
         outShoulderPos = outShoulderSpecimenPos;
     }
 
+    public void outtakeHookInPos() {
+        outShoulderPos = outShoulderHookInPos;
+
+    }
     public void update(){
         boundValues();
         outShoulder.setPosition(outShoulderPos);
@@ -80,5 +90,13 @@ public class Outtake {
         } else {
             openOutClaw();
         }
+    }
+
+    public void incrementWristPos(float increment){
+        outWristPos += increment;
+    }
+
+    public void incrementOutShoPos(float increment) {
+        outShoulderPos += increment;
     }
 }

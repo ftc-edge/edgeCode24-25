@@ -5,6 +5,7 @@ import static java.lang.Math.min;
 
 import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
@@ -17,7 +18,7 @@ public class Drive {
     private DcMotor FLmotor;
     private DcMotor BRmotor;
     private DcMotor BLmotor;
-    private static float POWER = 1f;
+    public static float POWER = 1f;
 
     public Drive(HardwareMap hardwareMap){
         FRmotor = hardwareMap.get(DcMotor.class, "rightFront");
@@ -41,15 +42,21 @@ public class Drive {
         BLmotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         BLmotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
-        FLmotor.setDirection(DcMotor.Direction.REVERSE);
-        BLmotor.setDirection(DcMotor.Direction.REVERSE);
+       FRmotor.setDirection(DcMotorSimple.Direction.REVERSE);
+       BLmotor.setDirection(DcMotorSimple.Direction.REVERSE);
     }
 
     public void setPower(float forward, float horizontal, float pivot){
-        FRmotor.setPower((forward - horizontal + pivot) * POWER);
-        BRmotor.setPower((forward + horizontal + pivot) * POWER);
-        FLmotor.setPower((forward + horizontal - pivot) * POWER);
-        BLmotor.setPower((forward - horizontal - pivot) * POWER);
+        FRmotor.setPower((forward + horizontal + pivot) * POWER);
+        BRmotor.setPower((forward + horizontal - pivot) * POWER);
+        FLmotor.setPower((forward - horizontal - pivot) * POWER);
+        BLmotor.setPower((forward - horizontal + pivot) * POWER);
+
+        // front left is -> front right
+        // back left is -> black left
+        // front right is -> front left
+        // back right is -> back right
+
     }
 
     // public void setLimiter(float power){
