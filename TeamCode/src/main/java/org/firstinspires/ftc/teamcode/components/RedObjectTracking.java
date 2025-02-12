@@ -23,8 +23,8 @@ public class RedObjectTracking {
 
     public static String colorSetting = "red";
 
-    public static double cameraElevation = 10;
-    public static double cameraAngleDeg = 60; // in Degrees
+    public static double cameraElevation = 14.5;
+    public static double cameraAngleDeg = 30; // in Degrees
     public static double cameraHeightCM = 0.5;
     public static double cameraWidthCM = 0.667;
     public static double cameraHeightPX = 480;

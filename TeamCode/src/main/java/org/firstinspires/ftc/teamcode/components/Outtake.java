@@ -8,11 +8,13 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
+import org.firstinspires.ftc.teamcode.components.Slides;
 
 import java.util.*;
 
 @Config
 public class Outtake {
+    Slides slides;
     public Servo outShoulder;
     public Servo outWrist;
     public Servo outFinger1, outFinger2;
@@ -26,13 +28,18 @@ public class Outtake {
     public static float outShoulderPassoffPos = 0.894f;
     public static float outShoulderSpecimenPos = 0.628f;
     public static float outShoulderHookInPos = 0.6f;
+    public static float outShoulderWallPos = 0.1f;
+
     public static float outWristPassoffPos = 0.34f;
+
+    // Following are Opposite
     public static float outFing1OpenPos = 0.15f;
     public static float outFing2OpenPos = 0.8f;
     public static float outFing1ClosePos = 0.4f;
     public static float outFing2ClosePos = 0.5f;
 
-    public static double clawBuffer = 0.7f;
+    public static double clawBuffer = 1;
+    public static double wallPosBuffer = 1;
 
     public Outtake(HardwareMap hardwareMap){
         outShoulder = hardwareMap.get(Servo.class, "outShoulder");
@@ -51,12 +58,12 @@ public class Outtake {
         outFing2Pos = max(0, min(1, outFing2Pos));
     }
 
-    public void openOutClaw(){
+    public void closeOutClaw(){
         outFing1Pos = outFing1OpenPos;
         outFing2Pos = outFing2OpenPos;
     }
 
-    public void closeOutClaw(){
+    public void openOutClaw(){
         outFing1Pos = outFing1ClosePos;
         outFing2Pos = outFing2ClosePos;
     }
@@ -76,8 +83,13 @@ public class Outtake {
 
     public void outtakeHookInPos() {
         outShoulderPos = outShoulderHookInPos;
-
     }
+
+    public void outtakeWallPos(){
+        outShoulderPos = outShoulderWallPos;
+        openOutClaw();
+    }
+
     public void update(){
         boundValues();
         outShoulder.setPosition(outShoulderPos);
@@ -87,7 +99,7 @@ public class Outtake {
     }
 
     public void toggleOutClaw(){
-        if (outFing1Pos == outFing1OpenPos) {
+        if (outFing1Pos == outFing1ClosePos) {
             closeOutClaw();
         } else {
             openOutClaw();

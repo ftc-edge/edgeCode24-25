@@ -13,6 +13,8 @@ import org.firstinspires.ftc.teamcode.components.Drive;
 import org.firstinspires.ftc.teamcode.components.Slides;
 import org.firstinspires.ftc.teamcode.components.Intake;
 import org.firstinspires.ftc.teamcode.components.Outtake;
+import org.firstinspires.ftc.teamcode.components.Auto;
+
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
@@ -37,26 +39,21 @@ public class newAuto extends LinearOpMode{
     Intake intake;
     Outtake outtake;
 
+    Auto auto;
 
-    public static double specPosY = -48;
-    public static double specPosX = 0;
-    public static double hookInY = -24;
 
-    public static double sampleGrabX = 36;
-    public static double sampleGrabY = -12;
-    public static double sample1X = 48;
-    public static double samplePushY = -60;
-    public static double sampleGrabIncrementY = 8;
+
 
 
     private ElapsedTime runtime = new ElapsedTime();
 
     public void runOpMode() throws InterruptedException {
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
-        Pose2d startPose = new Pose2d(0, -65, Math.toRadians(-90));
+        Pose2d startPose = new Pose2d(0, -65, Math.toRadians(auto.startingHeading));
         drive.setPoseEstimate(startPose);
         outtake = new Outtake(hardwareMap);
         slides = new Slides(hardwareMap);
+        auto = new Auto();
         waitForStart();
 
 //        outtake.closeOutClaw();
@@ -65,25 +62,32 @@ public class newAuto extends LinearOpMode{
 
         drive.updatePoseEstimate();
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose)
-                .lineTo(new Vector2d(specPosX, specPosY))
+                .lineTo(new Vector2d(auto.specPosX, auto.specPosY))
                 .build();
 
         drive.updatePoseEstimate();
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                    .lineTo(new Vector2d(specPosX, hookInY))
+                    .lineTo(new Vector2d(auto.specPosX, auto.hookInY))
                     .build();
 
         TrajectorySequence traj3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                        .lineTo(new Vector2d(sampleGrabX, hookInY))
-                                .lineTo(new Vector2d(sampleGrabX, sampleGrabY))
-                                        .lineTo(new Vector2d(sample1X, sampleGrabY))
-                                                .lineTo(new Vector2d(sample1X, samplePushY))
+                        .lineTo(new Vector2d(auto.sampleGrabX, auto.hookInY))
+                                .lineTo(new Vector2d(auto.sampleGrabX, auto.sampleGrabY))
+                                        .lineTo(new Vector2d(auto.sample1X, auto.sampleGrabY))
+                                                .lineTo(new Vector2d(auto.sample1X, auto.samplePushY))
                                                         .build();
-
+        TrajectorySequence traj4 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                        .lineTo(new Vector2d(auto.sample1X + auto.sampleGrabIncrementX, auto.sampleGrabY))
+                                .lineTo(new Vector2d(auto.sample1X + auto.sampleGrabIncrementX, auto.samplePushY))
+                                        .lineTo(new Vector2d(auto.sample1X + auto.sampleGrabIncrementX,  auto.sampleGrabY))
+                                                .lineTo(new Vector2d(auto.sample1X + auto.sampleGrabIncrementX + auto.sampleGrabIncrementX, auto.sampleGrabY))
+                                                        .lineTo(new Vector2d(auto.sample1X + auto.sampleGrabIncrementX + auto.sampleGrabIncrementX, auto.samplePushY))
+                                                                .build();
         drive.followTrajectorySequence(traj1);
         //outtake.outtakeHookInPos();
         drive.followTrajectorySequence(traj2);
         drive.followTrajectorySequence(traj3);
+        drive.followTrajectorySequence(traj4);
 
 
     }

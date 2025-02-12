@@ -7,10 +7,6 @@ import com.acmerobotics.dashboard.config.Config;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
-
-import java.util.*;
 
 @Config
 public class Slides {
@@ -19,7 +15,7 @@ public class Slides {
     private DcMotorEx horSlide;
 
     public static int VERTSLIDEMAXPOS = 3310;
-    public static int HORSLIDEMAXPOS = 1000;
+    public static int HORSLIDEMAXPOS = 740;
     public static int VERTSLIDEMINPOS = 0;
     public static int HORSLIDEMINPOS = 0;
 
@@ -29,8 +25,9 @@ public class Slides {
     public static int specimenVertSlidePos = 2300;
     public static double gotoSpecimenPosPower = 0.6;
 
-    public static int CVhorSlidePosOffset = 0;
-    public static double CVhorSlidePosDivisor = 0.5;
+    public static int wallPosVertSlidePos = 700;
+    public static int CVhorSlidePosOffset = 300;
+    public static double CVhorSlidePosDivisor = 0.05;
     public Slides(HardwareMap hardwareMap){
         vertSlide = hardwareMap.get(DcMotorEx.class, "slideMotor");
         vertSlide2 = hardwareMap.get(DcMotorEx.class, "underSlide");
@@ -56,7 +53,7 @@ public class Slides {
         horSlide.setPower(initialHorSlidePower);
         horSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
 
-        horSlidePassoffPos();
+        vertSlidePassoffPos();
     }
 
     private int boundVert(int target){
@@ -92,12 +89,21 @@ public class Slides {
         horSlide.setTargetPosition(target);
     }
 
-    public void horSlidePassoffPos(){
+    public void vertSlidePassoffPos(){
         moveVertSlides(90, 0.7);
     }
 
+    public void vertSlideWallPos(){
+        moveVertSlides(wallPosVertSlidePos, 0.7);
+    }
+
+    public void horSlidePassoffPos(){
+        moveHorSlides(0, 0.9);
+    }
+
     public void setHorSlidesForCV(double yCoordCM){
-        moveHorSlides((int) (yCoordCM / CVhorSlidePosDivisor) + CVhorSlidePosOffset, 0.5);
+        int targetPos = max(CVhorSlidePosOffset,horSlide.getCurrentPosition()) + (int) (yCoordCM / CVhorSlidePosDivisor);
+        moveHorSlides(targetPos, 0.5);
     }
     public void vertSlidesSpecimenPos(){
         moveVertSlides(specimenVertSlidePos, gotoSpecimenPosPower);

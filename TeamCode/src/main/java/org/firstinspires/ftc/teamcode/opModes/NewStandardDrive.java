@@ -5,13 +5,9 @@ import static java.lang.Math.min;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.components.*;
-import java.util.*;
 
 
 @TeleOp()
@@ -25,8 +21,10 @@ public class NewStandardDrive extends OpMode {
     RedObjectTracking cv;
 
     private ElapsedTime runtime = new ElapsedTime();
-    boolean passoffTimer = false;
+    int passoffStage = 0;
+    int wallPosStage = 0;
 
+    boolean pressed2square = false;
     boolean pressed1square = false;
     boolean pressed1triangle = false;
     boolean pressed1circle = false;
@@ -78,6 +76,7 @@ public class NewStandardDrive extends OpMode {
         telemetry.addData("inLArm", intake.lArmServoPos);
         telemetry.addData("detectedAngle", cv.getDetectedAngle());
         telemetry.addData("Detected yDisplacement", yDisplacement);
+        telemetry.addData("Runtime", runtime.seconds());
         telemetry.update();
     }
 
@@ -117,10 +116,11 @@ public class NewStandardDrive extends OpMode {
         // Passoff Sequence
         if (gamepad1.triangle) {
             if (!pressed1triangle){
-                passoffTimer = true;
+                passoffStage = 1;
                 runtime.reset();
                 intake.intakePassoffPos();
                 intake.closeInClaw();
+                slides.vertSlidePassoffPos();
                 slides.horSlidePassoffPos();
             }
             pressed1triangle = true;
@@ -128,27 +128,29 @@ public class NewStandardDrive extends OpMode {
             pressed1triangle = false;
         }
 
-        if(passoffTimer && runtime.seconds() > Intake.wristBuffer) {
+        if(passoffStage == 1 && runtime.seconds() > Intake.wristBuffer) {
             intake.intakeAfterPassoffPos();
             outtake.openOutClaw();
-            outtake.outtakeSpecimenPos();
+            outtake.outtakePassoffPos();
             runtime.reset();
+            passoffStage = 2;
         }
 
-        if(passoffTimer && runtime.seconds() > Outtake.clawBuffer) {
+        if(passoffStage == 2 && runtime.seconds() > Outtake.clawBuffer) {
             outtake.closeOutClaw();
             intake.openInClaw();
             intake.intakeNeutralPos();
+            passoffStage = 0;
         }
 
         if (gamepad1.circle) {
             intake.intakeNeutralPos();
         }
+        yDisplacement = cv.getProjection().y;
         if (gamepad1.square) {
             if (!pressed1square){
                 intake.setInWristForCV(cv.getDetectedAngle());
                 if (cv.getProjection().validProjection){
-                    yDisplacement = cv.getProjection().y;
                     slides.setHorSlidesForCV(yDisplacement);
                 }
             }
@@ -169,7 +171,7 @@ public class NewStandardDrive extends OpMode {
         // Can be Commented Out
         if (gamepad2.cross) {
             outtake.outtakePassoffPos();
-            slides.horSlidePassoffPos();
+            slides.vertSlidePassoffPos();
         }
 
         if (gamepad2.triangle) {
@@ -181,6 +183,10 @@ public class NewStandardDrive extends OpMode {
             outtake.outtakeSpecimenPos();
         }
 
+//        if(gamepad2.square){
+//            slides.horIncrement(-120);
+//        }
+
         if (gamepad2.right_bumper) {
             if (!pressed2rb) {
                 outtake.toggleOutClaw();
@@ -191,5 +197,19 @@ public class NewStandardDrive extends OpMode {
             pressed2rb = false;
         }
 
+        if(gamepad2.square){
+            if(!pressed2square) {
+                slides.vertSlideWallPos();
+                runtime.reset();
+                wallPosStage = 1;
+            }
+                pressed2square = true;
+        }else{
+            pressed2square = false;
+        }
+        if(wallPosStage == 1 && runtime.seconds() > Outtake.wallPosBuffer){
+            outtake.outtakeWallPos();
+            wallPosStage = 0;
+        }
     }
 }

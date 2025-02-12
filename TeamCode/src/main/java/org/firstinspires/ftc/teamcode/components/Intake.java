@@ -17,7 +17,7 @@ public class Intake {
 
     // CLAWS (Open/Close)
     public static float intakeClawOpenPos = 0.0f;
-    public static float intakeClawClosePos = 0.13f;
+    public static float intakeClawClosePos = 0.135f;
     
     // GROUND POSITIONS: (Wrist, Arm)
     public static float groundWristPos = 0.9f;
@@ -104,6 +104,7 @@ public class Intake {
         wristServoPos = passoffWristPos;
         lArmServoPos = passoffLArmPos;
     }
+
 
     public void intakeAfterPassoffPos(){
         wristServoPos = afterPassoffWristPos;
