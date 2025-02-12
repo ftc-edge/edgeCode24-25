@@ -1,9 +1,10 @@
 // this is new code
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.components;
 
-import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.acmerobotics.dashboard.config.Config;
+import com.qualcomm.robotcore.hardware.HardwareMap;
+
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
@@ -15,13 +16,12 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
-@TeleOp(name = "RedObjectTracking", group = "Vision")
-public class RedObjectTracking extends LinearOpMode {
+@Config
+public class RedObjectTracking {
     private OpenCvWebcam webcam;
     private RedPipeline redPipeline = new RedPipeline();
 
-    @Override
-    public void runOpMode() {
+    public RedObjectTracking(HardwareMap hardwareMap){
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
@@ -30,29 +30,13 @@ public class RedObjectTracking extends LinearOpMode {
 
         webcam.setPipeline(redPipeline);
         webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener() {
-            @Override
             public void onOpened() {
                 webcam.startStreaming(640, 480, OpenCvCameraRotation.UPRIGHT);
             }
-
-            @Override
             public void onError(int errorCode) {
-                telemetry.addData("Camera Error", errorCode);
-                telemetry.update();
+
             }
         });
-
-        telemetry.addLine("Waiting for start...");
-        telemetry.update();
-        waitForStart();
-
-        while (opModeIsActive()) {
-            telemetry.addData("Contours Found", redPipeline.getContoursCount());
-            telemetry.addData("Detected Angle (deg)", redPipeline.getDetectedAngle());
-            telemetry.addData("Bounding Box Center", "(%.2f, %.2f)", redPipeline.getBoundingBoxCenter().x, redPipeline.getBoundingBoxCenter().y);
-            telemetry.update();
-            sleep(100);
-        }
     }
 
     static class RedPipeline extends OpenCvPipeline {
@@ -61,7 +45,6 @@ public class RedObjectTracking extends LinearOpMode {
         private Point centerPoint = new Point(-1, -1);
         private double detectedAngle = 0.0;
 
-        @Override
         public Mat processFrame(Mat input) {
             Mat hsv = new Mat();
             Mat mask1 = new Mat();
@@ -173,4 +156,16 @@ public class RedObjectTracking extends LinearOpMode {
             return centerPoint;
         }
     }
+
+    public int getContoursCount() {return redPipeline.getContoursCount();}
+
+    public double getDetectedAngle() {return redPipeline.getDetectedAngle();}
+
+    public double getBoundingBoxCenterX() {
+        return redPipeline.getBoundingBoxCenter().x;
+    }
+    public double getBoundingBoxCenterY() {
+        return redPipeline.getBoundingBoxCenter().y;
+    }
+
 }

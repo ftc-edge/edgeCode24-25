@@ -42,6 +42,12 @@ public class newAuto extends LinearOpMode{
     public static double specPosX = 0;
     public static double hookInY = -24;
 
+    public static double sampleGrabX = 36;
+    public static double sampleGrabY = -12;
+    public static double sample1X = 48;
+    public static double samplePushY = -60;
+    public static double sampleGrabIncrementY = 8;
+
 
     private ElapsedTime runtime = new ElapsedTime();
 
@@ -49,11 +55,13 @@ public class newAuto extends LinearOpMode{
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
         Pose2d startPose = new Pose2d(0, -65, Math.toRadians(-90));
         drive.setPoseEstimate(startPose);
+        outtake = new Outtake(hardwareMap);
+        slides = new Slides(hardwareMap);
         waitForStart();
 
-        outtake.closeOutClaw();
-        outtake.outtakeSpecimenPos();
-        slides.vertSlidesSpecimenPos();
+//        outtake.closeOutClaw();
+//        outtake.outtakeSpecimenPos();
+//        slides.vertSlidesSpecimenPos();
 
         drive.updatePoseEstimate();
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose)
@@ -65,9 +73,17 @@ public class newAuto extends LinearOpMode{
                     .lineTo(new Vector2d(specPosX, hookInY))
                     .build();
 
+        TrajectorySequence traj3 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                        .lineTo(new Vector2d(sampleGrabX, hookInY))
+                                .lineTo(new Vector2d(sampleGrabX, sampleGrabY))
+                                        .lineTo(new Vector2d(sample1X, sampleGrabY))
+                                                .lineTo(new Vector2d(sample1X, samplePushY))
+                                                        .build();
+
         drive.followTrajectorySequence(traj1);
-        outtake.outtakeHookInPos();
+        //outtake.outtakeHookInPos();
         drive.followTrajectorySequence(traj2);
+        drive.followTrajectorySequence(traj3);
 
 
     }

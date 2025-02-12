@@ -29,6 +29,8 @@ public class Slides {
     public static int specimenVertSlidePos = 2300;
     public static double gotoSpecimenPosPower = 0.6;
 
+    public static int CVhorSlidePosOffset = 0;
+    public static double CVhorSlidePosDivisor = 1;
     public Slides(HardwareMap hardwareMap){
         vertSlide = hardwareMap.get(DcMotorEx.class, "slideMotor");
         vertSlide2 = hardwareMap.get(DcMotorEx.class, "underSlide");
@@ -53,6 +55,8 @@ public class Slides {
         horSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
         horSlide.setPower(initialHorSlidePower);
         horSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+
+        horSlidePassoffPos();
     }
 
     private int boundVert(int target){
@@ -88,6 +92,13 @@ public class Slides {
         horSlide.setTargetPosition(target);
     }
 
+    public void horSlidePassoffPos(){
+        moveVertSlides(90, 0.7);
+    }
+
+    public void setHorSlidesForCV(double yCoordCM){
+        moveHorSlides((int) (yCoordCM / CVhorSlidePosDivisor) + CVhorSlidePosOffset, 0.5);
+    }
     public void vertSlidesSpecimenPos(){
         moveVertSlides(specimenVertSlidePos, gotoSpecimenPosPower);
     }

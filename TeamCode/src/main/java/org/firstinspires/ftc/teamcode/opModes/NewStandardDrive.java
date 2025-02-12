@@ -14,7 +14,7 @@ import org.firstinspires.ftc.teamcode.components.Drive;
 import org.firstinspires.ftc.teamcode.components.Slides;
 import org.firstinspires.ftc.teamcode.components.Intake;
 import org.firstinspires.ftc.teamcode.components.Outtake;
-
+import org.firstinspires.ftc.teamcode.components.RedObjectTracking;
 import java.util.*;
 
 
@@ -26,11 +26,15 @@ public class NewStandardDrive extends OpMode {
     Intake intake;
     Outtake outtake;
 
+    RedObjectTracking cv;
+
     private ElapsedTime runtime = new ElapsedTime();
     boolean passoffTimer = false;
 
     boolean pressed2x = false;
     boolean pressed1x = false;
+    boolean pressed1lb = false;
+    boolean pressed1rb = false;
 
     // TODO: Hang Mode
 
@@ -40,6 +44,7 @@ public class NewStandardDrive extends OpMode {
         slides = new Slides(hardwareMap);
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
+        cv = new RedObjectTracking(hardwareMap);
     }
 
     private long getTime(){
@@ -68,7 +73,9 @@ public class NewStandardDrive extends OpMode {
         telemetry.addData("outSho", outtake.outShoulderPos);
         telemetry.addData("inWrist", intake.wristServoPos);
         telemetry.addData("inLArm", intake.lArmServoPos);
-        
+        telemetry.addData("detectedAmgle", cv.getDetectedAngle());
+        telemetry.addData("x:", cv.getBoundingBoxCenterX());
+        telemetry.addData("y:", cv.getBoundingBoxCenterY());
         telemetry.update();
     }
 
@@ -109,29 +116,41 @@ public class NewStandardDrive extends OpMode {
             runtime.reset();
             intake.intakePassoffPos();
         }
-        if(passoffTimer && runtime.seconds() > 0.6) {
+        if(passoffTimer && runtime.seconds() > intake.wristBuffer) {
             passoffTimer = false;
             intake.intakeAfterPassoffPos();
         }
         if (gamepad1.b) {
             intake.intakeNeutralPos();
         }
-        if (gamepad1.x) {
+        if (gamepad1.square) {
             if (!pressed1x){
-                intake.toggleInClaw();
+                intake.setInWristForCV(cv.getDetectedAngle());
             }
             pressed1x = true;
         } else {
             pressed1x = false;
         }
 
+        if(gamepad1.right_bumper){
+            if(!pressed1rb){
+                intake.toggleInClaw();
+            }
+            pressed1rb = true;
+        } else {
+            pressed1rb = false;
+        }
+
         if (gamepad2.b) {
             outtake.outtakePassoffPos();
+            slides.horSlidePassoffPos();
         }
         if (gamepad2.y) {
+            intake.intakeNeutralPos();
             outtake.outtakePlacePos();
         }
         if (gamepad2.a) {
+            intake.intakeNeutralPos();
             outtake.outtakeSpecimenPos();
         }
         if (gamepad2.x) {

@@ -17,7 +17,7 @@ public class Intake {
 
     // CLAWS (Open/Close)
     public static float intakeClawOpenPos = 0.0f;
-    public static float intakeClawClosePos = 0.14f;
+    public static float intakeClawClosePos = 0.13f;
     
     // GROUND POSITIONS: (Wrist, Arm)
     public static float groundWristPos = 0.9f;
@@ -35,6 +35,13 @@ public class Intake {
 
     // AFTER PASSOFF TIMER:
     public static float afterPassoffWristPos = 0.604f;
+
+    public static double wristBuffer = 0.25;
+
+    // CV Tuning
+
+    public static double CVwristPosOffset = 90;
+    public static double CVwristPosDivisor = 160.5;
 
     public float inFingPos;
     public float wristServoPos;
@@ -114,6 +121,14 @@ public class Intake {
     //     rArmServoPos += increment;
     // }
 
+    public void setInWristForCV(double angle){
+        angle += CVwristPosOffset;
+        if (angle >= 180) {
+            angle -= 180;
+        }
+        float pos = (float) (angle / CVwristPosDivisor);
+        wristServoPos = pos;
+    }
 
 
     public void update(){
