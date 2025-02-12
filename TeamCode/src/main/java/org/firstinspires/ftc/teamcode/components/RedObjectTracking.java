@@ -1,5 +1,3 @@
-// this is new code
-
 package org.firstinspires.ftc.teamcode.components;
 
 import com.acmerobotics.dashboard.config.Config;
@@ -16,12 +14,45 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.List;
 
+import org.firstinspires.ftc.teamcode.components.ProjectionPosition;
+
 @Config
 public class RedObjectTracking {
     private OpenCvWebcam webcam;
-    private RedPipeline redPipeline = new RedPipeline();
+    private RedPipeline redPipeline;
+
+    public static String colorSetting = "red";
+
+    public static double cameraElevation = 10;
+    public static double cameraAngleDeg = 60; // in Degrees
+    public static double cameraHeightCM = 0.5;
+    public static double cameraWidthCM = 0.667;
+    public static double cameraHeightPX = 480;
+    public static double cameraWidthPX = 640;
+    public static double cameraFocalLength = 0.367;
 
     public RedObjectTracking(HardwareMap hardwareMap){
+        Scalar lowerBound;
+        Scalar upperBound;
+
+        switch (colorSetting.toLowerCase()) {
+            case "yellow":
+                lowerBound = new Scalar(20, 100, 100);
+                upperBound = new Scalar(30, 255, 255);
+                break;
+            case "blue":
+                lowerBound = new Scalar(100, 150, 0);
+                upperBound = new Scalar(140, 255, 255);
+                break;
+            case "red":
+            default:
+                lowerBound = new Scalar(0, 50, 50);
+                upperBound = new Scalar(10, 255, 255);
+                break;
+        }
+
+        redPipeline = new RedPipeline(lowerBound, upperBound);
+
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
 
@@ -44,27 +75,24 @@ public class RedObjectTracking {
         private final List<MatOfPoint> contours = new ArrayList<>();
         private Point centerPoint = new Point(-1, -1);
         private double detectedAngle = 0.0;
+        private Scalar lowerBound;
+        private Scalar upperBound;
+
+        public RedPipeline(Scalar lowerBound, Scalar upperBound) {
+            this.lowerBound = lowerBound;
+            this.upperBound = upperBound;
+        }
 
         public Mat processFrame(Mat input) {
             Mat hsv = new Mat();
-            Mat mask1 = new Mat();
-            Mat mask2 = new Mat();
             Mat mask = new Mat();
             Mat hierarchy = new Mat();
 
             // Convert image to HSV
             Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
-            // Define red color range
-            Scalar lowerRed1 = new Scalar(0, 50, 50);
-            Scalar upperRed1 = new Scalar(10, 255, 255);
-            Scalar lowerRed2 = new Scalar(170, 50, 50);
-            Scalar upperRed2 = new Scalar(180, 255, 255);
-
-            // Create masks for red color
-            Core.inRange(hsv, lowerRed1, upperRed1, mask1);
-            Core.inRange(hsv, lowerRed2, upperRed2, mask2);
-            Core.addWeighted(mask1, 1.0, mask2, 1.0, 0.0, mask);
+            // Create mask for the selected color
+            Core.inRange(hsv, lowerBound, upperBound, mask);
 
             // Find contours
             contours.clear();
@@ -136,8 +164,6 @@ public class RedObjectTracking {
 
             // Release memory
             hsv.release();
-            mask1.release();
-            mask2.release();
             mask.release();
             hierarchy.release();
 
@@ -168,4 +194,8 @@ public class RedObjectTracking {
         return redPipeline.getBoundingBoxCenter().y;
     }
 
+    public ProjectionPosition getProjection(){
+        ProjectionPosition cameraPoint = new ProjectionPosition(redPipeline.getBoundingBoxCenter().x, redPipeline.getBoundingBoxCenter().y, cameraWidthCM, cameraHeightCM, cameraWidthPX, cameraHeightPX);
+        return cameraPoint.project(Math.toRadians(cameraAngleDeg), cameraElevation, cameraFocalLength);
+    }
 }

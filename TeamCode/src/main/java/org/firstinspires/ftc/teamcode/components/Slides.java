@@ -30,7 +30,7 @@ public class Slides {
     public static double gotoSpecimenPosPower = 0.6;
 
     public static int CVhorSlidePosOffset = 0;
-    public static double CVhorSlidePosDivisor = 1;
+    public static double CVhorSlidePosDivisor = 0.5;
     public Slides(HardwareMap hardwareMap){
         vertSlide = hardwareMap.get(DcMotorEx.class, "slideMotor");
         vertSlide2 = hardwareMap.get(DcMotorEx.class, "underSlide");

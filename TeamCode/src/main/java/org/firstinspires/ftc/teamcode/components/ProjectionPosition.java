@@ -1,9 +1,9 @@
-package org.firstinspires.ftc.teamcode.tests;
+package org.firstinspires.ftc.teamcode.components;
 
 public class ProjectionPosition {
     public double x; // in cm
     public double y; // in cm
-    boolean validProjection;
+    public boolean validProjection;
 
     public ProjectionPosition() {
         this.validProjection = false;

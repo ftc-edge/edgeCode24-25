@@ -32,6 +32,8 @@ public class Outtake {
     public static float outFing1ClosePos = 0.4f;
     public static float outFing2ClosePos = 0.5f;
 
+    public static double clawBuffer = 0.7f;
+
     public Outtake(HardwareMap hardwareMap){
         outShoulder = hardwareMap.get(Servo.class, "outShoulder");
         outWrist = hardwareMap.get(Servo.class, "outWrist");
