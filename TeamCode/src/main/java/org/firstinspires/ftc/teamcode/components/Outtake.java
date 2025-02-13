@@ -24,13 +24,16 @@ public class Outtake {
     public float outShoulderPos;
     public float outWristPos = 0f;
 
-    public static float outShoulderPlacePos = 0.12f;
-    public static float outShoulderPassoffPos = 0.42f;
-    public static float outShoulderSpecimenPos = 0.7f;
+    public static float outShoulderPlacePos = 0.32f;
+    public static float outShoulderSpecimenPos = 0.638f;
     public static float outShoulderHookInPos = 0.6f;
-    public static float outShoulderWallPos = 0.766f;
+    public static float outShoulderWallPos = 1f;
 
-    public static float outWristPassoffPos = 0.34f;
+    public static float outWristPassoffPos = 0.33f;
+    public static float outWristWallPos = 0.858f;
+    public static float outWristPlacePos = 0.34f;
+    public static float outWristSpecimenPos = 0.31f;
+    public static float outWristHookInPos = 0.31f;
 
     // Following are Opposite
     public static float outFing1OpenPos = 0.15f;
@@ -70,6 +73,7 @@ public class Outtake {
 
     public void outtakePlacePos() {
         outShoulderPos = outShoulderPlacePos;
+        outWristPos = outWristPlacePos;
     }
 
     public void outtakePassoffPos() {
@@ -79,14 +83,17 @@ public class Outtake {
 
     public void outtakeSpecimenPos() {
         outShoulderPos = outShoulderSpecimenPos;
+        outWristPos = outWristSpecimenPos;
     }
 
     public void outtakeHookInPos() {
         outShoulderPos = outShoulderHookInPos;
+        outWristPos = outWristHookInPos;
     }
 
     public void outtakeWallPos(){
         outShoulderPos = outShoulderWallPos;
+        outWristPos = outWristWallPos;
         openOutClaw();
     }
 

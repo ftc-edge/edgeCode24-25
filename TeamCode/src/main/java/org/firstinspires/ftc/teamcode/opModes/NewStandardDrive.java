@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.components.*;
 
-
+// TODO: Reverse Pivot
 @TeleOp()
 public class NewStandardDrive extends OpMode {
 
@@ -23,6 +23,8 @@ public class NewStandardDrive extends OpMode {
     private ElapsedTime runtime = new ElapsedTime();
     int passoffStage = 0;
     int wallPosStage = 0;
+
+    boolean onWall = false;
 
     boolean pressed2square = false;
     boolean pressed1square = false;
@@ -60,8 +62,8 @@ public class NewStandardDrive extends OpMode {
 
     public void doMove() {
         drive.setPower(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
-        slides.vertIncrement(25 * (int) (gamepad2.left_trigger - gamepad2.right_trigger));
-        slides.horIncrement(10 * (int) gamepad2.left_stick_y);
+        slides.vertIncrement(Slides.manualVertSlideSpeed * (int) (gamepad2.left_trigger - gamepad2.right_trigger));
+        slides.horIncrement(Slides.manualHorSlideSpeed * (int) gamepad2.left_stick_y);
         intake.update();
         outtake.update();
     }
@@ -168,6 +170,14 @@ public class NewStandardDrive extends OpMode {
             pressed1rb = false;
         }
 
+        if(gamepad1.left_bumper){
+            if(!pressed1lb) {
+                drive.switchState();
+            }
+            pressed1lb = true;
+        } else {
+            pressed1lb = false;
+        }
         // Can be Commented Out
         if (gamepad2.cross) {
             outtake.outtakePassoffPos();
@@ -197,7 +207,7 @@ public class NewStandardDrive extends OpMode {
             pressed2rb = false;
         }
 
-        if(gamepad2.square){
+        if(gamepad2.square && !onWall){
             if(!pressed2square) {
                 slides.vertSlideWallPos();
                 runtime.reset();
@@ -209,7 +219,13 @@ public class NewStandardDrive extends OpMode {
         }
         if(wallPosStage == 1 && runtime.seconds() > Outtake.wallPosBuffer){
             outtake.outtakeWallPos();
+            onWall = true;
             wallPosStage = 0;
+        }
+        if(onWall && gamepad2.square) {
+            slides.vertSlideWallPickup();
+            onWall = false;
+            pressed2square = false;
         }
     }
 }

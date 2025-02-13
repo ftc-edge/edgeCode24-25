@@ -25,9 +25,17 @@ public class Slides {
     public static int specimenVertSlidePos = 2300;
     public static double gotoSpecimenPosPower = 0.6;
 
+    public static int passoffVertSlidePos = 400;
+
     public static int wallPosVertSlidePos = 700;
+    public static int wallPickupVertSlideOffset = 100;
+
     public static int CVhorSlidePosOffset = 300;
     public static double CVhorSlidePosDivisor = 0.05;
+
+    public static int manualHorSlideSpeed = 10;
+    public static int manualVertSlideSpeed = 35;
+
     public Slides(HardwareMap hardwareMap){
         vertSlide = hardwareMap.get(DcMotorEx.class, "slideMotor");
         vertSlide2 = hardwareMap.get(DcMotorEx.class, "underSlide");
@@ -90,11 +98,15 @@ public class Slides {
     }
 
     public void vertSlidePassoffPos(){
-        moveVertSlides(90, 0.7);
+        moveVertSlides(passoffVertSlidePos, 0.7);
     }
 
     public void vertSlideWallPos(){
-        moveVertSlides(wallPosVertSlidePos, 0.7);
+        moveVertSlides(wallPosVertSlidePos, 1);
+    }
+
+    public void vertSlideWallPickup() {
+        moveVertSlides(wallPosVertSlidePos + wallPickupVertSlideOffset, 0.7);
     }
 
     public void horSlidePassoffPos(){
