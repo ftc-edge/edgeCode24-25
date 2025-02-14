@@ -5,9 +5,12 @@ import static java.lang.Math.min;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.components.*;
+
+import java.util.Objects;
 
 // TODO: Reverse Pivot
 @TeleOp()
@@ -36,13 +39,15 @@ public class NewStandardDrive extends OpMode {
 
     boolean pressed2x = false;
     boolean pressed2rb = false;
-    
-    double yDisplacement = -1;
+    boolean pressed2lb = false;
 
-    // TODO: Hang Mode
+    boolean hangMode = false;
+
+    double yDisplacement = -1;
 
     @Override
     public void init() {
+        gamepad2.setLedColor(0, 0, 1, Gamepad.LED_DURATION_CONTINUOUS);
         drive = new Drive(hardwareMap);
         slides = new Slides(hardwareMap);
         intake = new Intake(hardwareMap);
@@ -66,6 +71,9 @@ public class NewStandardDrive extends OpMode {
         slides.horIncrement(Slides.manualHorSlideSpeed * (int) gamepad2.left_stick_y);
         intake.update();
         outtake.update();
+        if (hangMode) {
+            slides.moveVertSlides(900, 1);
+        }
     }
 
     private void telemetry(){
@@ -80,6 +88,24 @@ public class NewStandardDrive extends OpMode {
         telemetry.addData("Detected yDisplacement", yDisplacement);
         telemetry.addData("Runtime", runtime.seconds());
         telemetry.update();
+    }
+
+    private void closeInClawWithController(){
+        intake.closeInClaw();
+        gamepad1.setLedColor(1, 0, 0, 2000);
+    }
+
+    private void openInClawWithController(){
+        intake.openInClaw();
+        gamepad1.setLedColor(0, 1, 0, 2000);
+    }
+
+    private void toggleInClawWithController(){
+        if (intake.toggleInClaw()){
+            gamepad1.setLedColor(1, 0, 0, 2000);
+            return;
+        }
+        gamepad1.setLedColor(0, 1, 0, 2000);
     }
 
     private void servoControl(){
@@ -121,7 +147,7 @@ public class NewStandardDrive extends OpMode {
                 passoffStage = 1;
                 runtime.reset();
                 intake.intakePassoffPos();
-                intake.closeInClaw();
+                closeInClawWithController();
                 slides.vertSlidePassoffPos();
                 slides.horSlidePassoffPos();
             }
@@ -140,7 +166,7 @@ public class NewStandardDrive extends OpMode {
 
         if(passoffStage == 2 && runtime.seconds() > Outtake.clawBuffer) {
             outtake.closeOutClaw();
-            intake.openInClaw();
+            openInClawWithController();
             intake.intakeNeutralPos();
             passoffStage = 0;
         }
@@ -163,7 +189,7 @@ public class NewStandardDrive extends OpMode {
 
         if(gamepad1.right_bumper){
             if(!pressed1rb){
-                intake.toggleInClaw();
+                toggleInClawWithController();
             }
             pressed1rb = true;
         } else {
@@ -205,6 +231,20 @@ public class NewStandardDrive extends OpMode {
         }
         else {
             pressed2rb = false;
+        }
+
+        if (gamepad2.left_bumper) {
+            if (!pressed2lb) {
+                hangMode = !hangMode;
+                if (hangMode) {
+                    gamepad2.setLedColor(1, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
+                } else {
+                    gamepad2.setLedColor(0, 1, 0, Gamepad.LED_DURATION_CONTINUOUS);
+                }
+            }
+            pressed2lb = true;
+        } else {
+            pressed2lb = false;
         }
 
         if(gamepad2.square && !onWall){

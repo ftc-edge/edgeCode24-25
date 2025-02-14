@@ -31,7 +31,7 @@ public class Slides {
     public static int wallPickupVertSlideOffset = 100;
 
     public static int CVhorSlidePosOffset = 300;
-    public static double CVhorSlidePosDivisor = 0.05;
+    public static double CVhorSlidePosDivisor = 0.04;
 
     public static int manualHorSlideSpeed = 10;
     public static int manualVertSlideSpeed = 35;

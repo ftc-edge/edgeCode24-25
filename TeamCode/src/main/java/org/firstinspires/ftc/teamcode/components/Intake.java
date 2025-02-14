@@ -48,6 +48,8 @@ public class Intake {
     public float outShoulderPos;
     public float lArmServoPos;
 
+    public boolean clawState = false; // open is true, close is false
+
     public Intake(HardwareMap hardwareMap){
         rArm = hardwareMap.get(Servo.class, "rArm");
         lArm = hardwareMap.get(Servo.class, "lArm");
@@ -80,12 +82,13 @@ public class Intake {
         inFingPos = intakeClawClosePos;
     }
 
-    public void toggleInClaw() {
+    public boolean toggleInClaw() {
         if (inFingPos == intakeClawOpenPos) {
             closeInClaw();
-        } else {
-            openInClaw();
+            return true;
         }
+        openInClaw();
+        return false;
     }
 
     public void intakeGroundPos() {
