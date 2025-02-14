@@ -136,8 +136,18 @@ public class NewStandardDrive extends OpMode {
             passoffStage = 2;
         }
 
-        if(passoffStage == 2 && runtime.seconds() > Outtake.clawBuffer) {
+        if(passoffStage == 2 && runtime.seconds() > Intake.wristBuffer) {
+            intake.hangBlock();
+            runtime.reset();
+            passoffStage = 3;
+        }
+        if(passoffStage == 3 && runtime.seconds() > Outtake.clawBuffer/2){
             outtake.closeOutClaw();
+            runtime.reset();
+            passoffStage = 4;
+        }
+
+        if(passoffStage == 4 && runtime.seconds() > Intake.wristBuffer) {
             intake.openInClaw();
             intake.intakeNeutralPos();
             passoffStage = 0;

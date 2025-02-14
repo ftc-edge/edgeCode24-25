@@ -4,13 +4,8 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import com.acmerobotics.dashboard.config.Config;
-import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.hardware.DcMotor.ZeroPowerBehavior;
-import org.firstinspires.ftc.teamcode.components.Slides;
-
-import java.util.*;
 
 @Config
 public class Outtake {
@@ -24,13 +19,16 @@ public class Outtake {
     public float outShoulderPos;
     public float outWristPos = 0f;
 
-    public static float outShoulderPlacePos = 0.12f;
-    public static float outShoulderPassoffPos = 0.42f;
-    public static float outShoulderSpecimenPos = 0.7f;
+    public static float outShoulderPlacePos = 0.1f;
+    public static float outShoulderPassoffPos = 0.7f;
+    public static float outShoulderSpecimenPos = 0.442f;
     public static float outShoulderHookInPos = 0.6f;
-    public static float outShoulderWallPos = 0.766f;
+    public static float outShoulderWallPos = 0.8f;
+    public static float outWristWallPos = 0.854f;
 
-    public static float outWristPassoffPos = 0.34f;
+    public static float outWristPassoffPos = 0.316f;
+    public static float outWristHookPos = 0.566f;
+    public static float outWristSpecimenPos = 0.364f;
 
     // Following are Opposite
     public static float outFing1OpenPos = 0.15f;
@@ -79,14 +77,17 @@ public class Outtake {
 
     public void outtakeSpecimenPos() {
         outShoulderPos = outShoulderSpecimenPos;
+        outWristPos = outWristSpecimenPos;
     }
 
     public void outtakeHookInPos() {
         outShoulderPos = outShoulderHookInPos;
+        outWristPos = outWristHookPos;
     }
 
     public void outtakeWallPos(){
         outShoulderPos = outShoulderWallPos;
+        outWristPos = outWristWallPos;
         openOutClaw();
     }
 

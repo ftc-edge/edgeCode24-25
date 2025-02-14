@@ -18,6 +18,8 @@ public class Intake {
     // CLAWS (Open/Close)
     public static float intakeClawOpenPos = 0.0f;
     public static float intakeClawClosePos = 0.135f;
+
+    public static float intakeClawGrabPos = 1;
     
     // GROUND POSITIONS: (Wrist, Arm)
     public static float groundWristPos = 0.9f;
@@ -29,7 +31,7 @@ public class Intake {
     // public static float neutralRArmPos = 0.2f;
 
     // PASSOFF POSITIONS: (Wrist, Arm)
-    public static float passoffLArmPos = 0.697f;
+    public static float passoffLArmPos = 0.755f;
     // public static float passoffRArmPos = 0.64f;
     public static float passoffWristPos = 0.816f;
 
@@ -77,8 +79,10 @@ public class Intake {
     }
 
     public void closeInClaw() {
-        inFingPos = intakeClawClosePos;
+        inFingPos = intakeClawGrabPos;
     }
+
+    public void hangBlock(){inFingPos = intakeClawClosePos;}
 
     public void toggleInClaw() {
         if (inFingPos == intakeClawOpenPos) {
