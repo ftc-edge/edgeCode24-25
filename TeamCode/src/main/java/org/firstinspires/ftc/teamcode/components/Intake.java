@@ -18,7 +18,8 @@ public class Intake {
     // CLAWS (Open/Close)
     public static float intakeClawOpenPos = 0.0f;
     public static float intakeClawClosePos = 0.135f;
-    
+    public static float intakeClawLightClosePos = 0.12f;
+
     // GROUND POSITIONS: (Wrist, Arm)
     public static float groundWristPos = 0.9f;
     public static float groundLArmPos = 0.1f;
@@ -80,6 +81,10 @@ public class Intake {
 
     public void closeInClaw() {
         inFingPos = intakeClawClosePos;
+    }
+
+    public void closeInClawLight(){
+        inFingPos = intakeClawLightClosePos;
     }
 
     public boolean toggleInClaw() {

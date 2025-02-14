@@ -25,13 +25,13 @@ public class Slides {
     public static int specimenVertSlidePos = 2300;
     public static double gotoSpecimenPosPower = 0.6;
 
-    public static int passoffVertSlidePos = 400;
+    public static int passoffVertSlidePos = 90;
 
-    public static int wallPosVertSlidePos = 700;
-    public static int wallPickupVertSlideOffset = 100;
+    public static int wallPosVertSlidePos = 630;
+    public static int wallPickupVertSlideOffset = 600;
 
     public static int CVhorSlidePosOffset = 300;
-    public static double CVhorSlidePosDivisor = 0.04;
+    public static double CVhorSlidePosDivisor = 0.03;
 
     public static int manualHorSlideSpeed = 10;
     public static int manualVertSlideSpeed = 35;

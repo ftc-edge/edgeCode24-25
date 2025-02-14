@@ -28,6 +28,7 @@ public class NewStandardDrive extends OpMode {
     int wallPosStage = 0;
 
     boolean onWall = false;
+    int specimenPosStage = 0;
 
     boolean pressed2square = false;
     boolean pressed1square = false;
@@ -40,6 +41,7 @@ public class NewStandardDrive extends OpMode {
     boolean pressed2x = false;
     boolean pressed2rb = false;
     boolean pressed2lb = false;
+    boolean pressed2circle = false;
 
     boolean hangMode = false;
 
@@ -92,6 +94,11 @@ public class NewStandardDrive extends OpMode {
 
     private void closeInClawWithController(){
         intake.closeInClaw();
+        gamepad1.setLedColor(1, 0, 0, 2000);
+    }
+
+    private void closeInClawLightWithController(){
+        intake.closeInClawLight();
         gamepad1.setLedColor(1, 0, 0, 2000);
     }
 
@@ -158,6 +165,7 @@ public class NewStandardDrive extends OpMode {
 
         if(passoffStage == 1 && runtime.seconds() > Intake.wristBuffer) {
             intake.intakeAfterPassoffPos();
+            closeInClawLightWithController();
             outtake.openOutClaw();
             outtake.outtakePassoffPos();
             runtime.reset();
@@ -215,8 +223,22 @@ public class NewStandardDrive extends OpMode {
             outtake.outtakePlacePos();
         }
         if (gamepad2.circle) {
-            intake.intakeNeutralPos();
-            outtake.outtakeSpecimenPos();
+            if (!pressed2circle) {
+                switch (specimenPosStage) {
+                    case 0:
+                        intake.intakeNeutralPos();
+                        outtake.outtakeSpecimenPos();
+                        break;
+
+                    case 1:
+                        outtake..
+
+                }
+
+            }
+            pressed2circle = true;
+        } else {
+            pressed2circle = false;
         }
 
 //        if(gamepad2.square){
@@ -247,13 +269,19 @@ public class NewStandardDrive extends OpMode {
             pressed2lb = false;
         }
 
-        if(gamepad2.square && !onWall){
+        if(gamepad2.square){
             if(!pressed2square) {
-                slides.vertSlideWallPos();
-                runtime.reset();
-                wallPosStage = 1;
+                if(!onWall) {
+                    slides.vertSlideWallPos();
+                    runtime.reset();
+                    wallPosStage = 1;
+                } else {
+                    slides.vertSlideWallPickup();
+                    onWall = false;
+                    wallPosStage = 0;
+                }
             }
-                pressed2square = true;
+            pressed2square = true;
         }else{
             pressed2square = false;
         }
@@ -261,11 +289,6 @@ public class NewStandardDrive extends OpMode {
             outtake.outtakeWallPos();
             onWall = true;
             wallPosStage = 0;
-        }
-        if(onWall && gamepad2.square) {
-            slides.vertSlideWallPickup();
-            onWall = false;
-            pressed2square = false;
         }
     }
 }

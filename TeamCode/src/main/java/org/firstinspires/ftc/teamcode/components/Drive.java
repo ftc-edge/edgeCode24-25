@@ -63,7 +63,7 @@ public class Drive {
     }
 
     public double getMultiplier(){
-        return Objects.equals(power_state, "base") ? SECONDARY_POWER : BASE_POWER;
+        return Objects.equals(power_state, "base") ? BASE_POWER : SECONDARY_POWER;
     }
 
     public void switchState(){
