@@ -21,14 +21,14 @@ public class Outtake {
 
     public static float outShoulderPlacePos = 0.11f;
     public static float outShoulderPassoffPos = 0.665f;
-    public static float outShoulderSpecimenPos = 0.434f;
+    public static float outShoulderSpecimenPos = 0.618f;
     public static float outShoulderHookInPos = 0.6f;
     public static float outShoulderWallPos = 0.788f;
 
     public static float outWristPassoffPos = 0.33f;
     public static float outWristWallPos = 0.858f;
     public static float outWristPlacePos = 0.34f;
-    public static float outWristSpecimenPos = 0.31f;
+    public static float outWristSpecimenPos = 0.412f;
     public static float outWristHookInPos = 0.31f;
 
     // Following are Opposite
@@ -39,6 +39,7 @@ public class Outtake {
 
     public static double clawBuffer = 1;
     public static double wallPosBuffer = 0.8;
+    public static double wallPosClawBuffer = 0.8;
 
     public Outtake(HardwareMap hardwareMap){
         outShoulder = hardwareMap.get(Servo.class, "outShoulder");
@@ -84,13 +85,12 @@ public class Outtake {
 
     public void outtakeHookInPos() {
         outShoulderPos = outShoulderHookInPos;
-        outWristPos = outWristHookPos;
+        outWristPos = outWristHookInPos;
     }
 
     public void outtakeWallPos(){
         outShoulderPos = outShoulderWallPos;
         outWristPos = outWristWallPos;
-        openOutClaw();
     }
 
     public void update(){

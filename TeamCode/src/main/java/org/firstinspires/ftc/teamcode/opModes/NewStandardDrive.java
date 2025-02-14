@@ -70,11 +70,11 @@ public class NewStandardDrive extends OpMode {
     public void doMove() {
         drive.setPower(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
         slides.vertIncrement(Slides.manualVertSlideSpeed * (int) (gamepad2.left_trigger - gamepad2.right_trigger));
-        slides.horIncrement(Slides.manualHorSlideSpeed * (int) gamepad2.left_stick_y);
+        slides.horIncrement(Slides.manualHorSlideSpeed * (int) (gamepad1.left_trigger - gamepad1.right_trigger));
         intake.update();
         outtake.update();
         if (hangMode) {
-            slides.moveVertSlides(900, 1);
+            slides.moveVertSlides(Slides.hangModePosition, 1);
         }
     }
 
@@ -150,13 +150,15 @@ public class NewStandardDrive extends OpMode {
         
         // Passoff Sequence
         if (gamepad1.triangle) {
-            if (!pressed1triangle){
+            if (!pressed1triangle && !onWall){
                 passoffStage = 1;
                 runtime.reset();
                 intake.intakePassoffPos();
                 closeInClawWithController();
                 slides.vertSlidePassoffPos();
                 slides.horSlidePassoffPos();
+            } else if (onWall) {
+                slides.vertSlideWallPickup();
             }
             pressed1triangle = true;
         } else {
@@ -238,13 +240,15 @@ public class NewStandardDrive extends OpMode {
                     case 0:
                         intake.intakeNeutralPos();
                         outtake.outtakeSpecimenPos();
+                        slides.vertSlidesSpecimenPos();
+                        specimenPosStage = 1;
                         break;
 
                     case 1:
-                        outtake..
-
+                        slides.vertSlideHookInPos();
+                        specimenPosStage = 0;
+                        break;
                 }
-
             }
             pressed2circle = true;
         } else {
@@ -282,7 +286,7 @@ public class NewStandardDrive extends OpMode {
         if(gamepad2.square){
             if(!pressed2square) {
                 if(!onWall) {
-                    slides.vertSlideWallPos();
+                    slides.vertSlideWallClearancePos();
                     runtime.reset();
                     wallPosStage = 1;
                 } else {
@@ -296,7 +300,13 @@ public class NewStandardDrive extends OpMode {
             pressed2square = false;
         }
         if(wallPosStage == 1 && runtime.seconds() > Outtake.wallPosBuffer){
+            runtime.reset();
             outtake.outtakeWallPos();
+            wallPosStage = 2;
+        }
+        if(wallPosStage == 2 && runtime.seconds() > Outtake.wallPosClawBuffer){
+            outtake.openOutClaw();
+            slides.vertSlideWallPos();
             onWall = true;
             wallPosStage = 0;
         }

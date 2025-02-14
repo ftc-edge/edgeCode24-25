@@ -140,7 +140,7 @@ public class RedObjectTracking {
 
                     double angle = rect.angle;
                     if (rect.size.width < rect.size.height) {
-                        detectedAngle = angle + 90;
+                        detectedAngle = angle + 135;
                     } else {
                         detectedAngle = angle;
                     }

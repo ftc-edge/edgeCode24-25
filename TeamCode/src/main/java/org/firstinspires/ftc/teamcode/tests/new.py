@@ -104,7 +104,7 @@ def find_and_draw_contours(frame, mask, angle_queue):
 
 # Main function to capture video and process frames
 def main():
-    cap = cv2.VideoCapture(1, cv2.CAP_DSHOW)
+    cap = cv2.VideoCapture(1)
     angle_queue = deque()
     while True:
         ret, frame = cap.read()

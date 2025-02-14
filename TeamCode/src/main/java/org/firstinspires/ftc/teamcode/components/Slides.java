@@ -19,16 +19,21 @@ public class Slides {
     public static int VERTSLIDEMINPOS = 0;
     public static int HORSLIDEMINPOS = 0;
 
+    public static int hangModePosition = 1500;
+
     public static double initialVertSlidePower = 0.5f;
     public static double initialHorSlidePower = 0.5f;
 
-    public static int specimenVertSlidePos = 1300;
-    public static double gotoSpecimenPosPower = 0.6;
+    public static int specimenVertSlidePos = 1060;
+    public static double gotoSpecimenPosPower = 1;
+
+    public static int hookInVertSlidePos = 2900;
 
     public static int passoffVertSlidePos = 90;
 
-    public static int wallPosVertSlidePos = 630;
+    public static int wallPosVertSlidePos = 595;
     public static int wallPickupVertSlideOffset = 600;
+    public static int wallPosClawClearanceOffset = 250;
 
     public static int CVhorSlidePosOffset = 300;
     public static double CVhorSlidePosDivisor = 0.03;
@@ -98,11 +103,23 @@ public class Slides {
     }
 
     public void vertSlidePassoffPos(){
-        moveVertSlides(passoffPos, 1);
+        moveVertSlides(passoffVertSlidePos, 1);
     }
 
     public void vertSlideWallPos(){
         moveVertSlides(wallPosVertSlidePos, 1);
+    }
+
+    public void vertSlideWallClearancePos(){
+        moveVertSlides(wallPosVertSlidePos + wallPosClawClearanceOffset, 1);
+    }
+
+    public void vertSlideWallPickup(){
+        moveVertSlides(wallPosVertSlidePos + wallPickupVertSlideOffset, 1);
+    }
+
+    public void vertSlideHookInPos(){
+        moveVertSlides(hookInVertSlidePos, 1);
     }
 
     public void horSlidePassoffPos(){
