@@ -18,7 +18,10 @@ public class Drive {
     private DcMotor FLmotor;
     private DcMotor BRmotor;
     private DcMotor BLmotor;
-    public static float POWER = 1f;
+
+    public static float BASE_POWER = 1f;
+    public static float SECONDARY_POWER = 0.25f;
+    public String power_state = "base";
 
     public Drive(HardwareMap hardwareMap){
         FRmotor = hardwareMap.get(DcMotor.class, "rightFront");
@@ -47,16 +50,24 @@ public class Drive {
     }
 
     public void setPower(float forward, float horizontal, float pivot){
-        FRmotor.setPower((forward + horizontal + pivot) * POWER);
-        BRmotor.setPower((forward + horizontal - pivot) * POWER);
-        FLmotor.setPower((forward - horizontal - pivot) * POWER);
-        BLmotor.setPower((forward - horizontal + pivot) * POWER);
+        FRmotor.setPower((forward + horizontal + pivot) * getMultiplier());
+        BRmotor.setPower((forward + horizontal - pivot) * getMultiplier());
+        FLmotor.setPower((forward - horizontal - pivot) * getMultiplier());
+        BLmotor.setPower((forward - horizontal + pivot) * getMultiplier());
 
         // front left is -> front right
         // back left is -> black left
         // front right is -> front left
         // back right is -> back right
 
+    }
+
+    public double getMultiplier(){
+        return Objects.equals(power_state, "base") ? BASE_POWER : SECONDARY_POWER;
+    }
+
+    public void switchState(){
+        power_state = Objects.equals(power_state, "base") ? "secondary" : "base";
     }
 
     // public void setLimiter(float power){

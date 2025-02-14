@@ -5,11 +5,14 @@ import static java.lang.Math.min;
 
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.components.*;
 
+import java.util.Objects;
 
+// TODO: Reverse Pivot
 @TeleOp()
 public class NewStandardDrive extends OpMode {
 
@@ -24,6 +27,9 @@ public class NewStandardDrive extends OpMode {
     int passoffStage = 0;
     int wallPosStage = 0;
 
+    boolean onWall = false;
+    int specimenPosStage = 0;
+
     boolean pressed2square = false;
     boolean pressed1square = false;
     boolean pressed1triangle = false;
@@ -34,13 +40,16 @@ public class NewStandardDrive extends OpMode {
 
     boolean pressed2x = false;
     boolean pressed2rb = false;
-    
-    double yDisplacement = -1;
+    boolean pressed2lb = false;
+    boolean pressed2circle = false;
 
-    // TODO: Hang Mode
+    boolean hangMode = false;
+
+    double yDisplacement = -1;
 
     @Override
     public void init() {
+        gamepad2.setLedColor(0, 0, 1, Gamepad.LED_DURATION_CONTINUOUS);
         drive = new Drive(hardwareMap);
         slides = new Slides(hardwareMap);
         intake = new Intake(hardwareMap);
@@ -60,10 +69,13 @@ public class NewStandardDrive extends OpMode {
 
     public void doMove() {
         drive.setPower(-gamepad1.left_stick_y, gamepad1.left_stick_x, gamepad1.right_stick_x);
-        slides.vertIncrement(25 * (int) (gamepad2.left_trigger - gamepad2.right_trigger));
-        slides.horIncrement(10 * (int) gamepad2.left_stick_y);
+        slides.vertIncrement(Slides.manualVertSlideSpeed * (int) (gamepad2.left_trigger - gamepad2.right_trigger));
+        slides.horIncrement(Slides.manualHorSlideSpeed * (int) gamepad2.left_stick_y);
         intake.update();
         outtake.update();
+        if (hangMode) {
+            slides.moveVertSlides(900, 1);
+        }
     }
 
     private void telemetry(){
@@ -78,6 +90,29 @@ public class NewStandardDrive extends OpMode {
         telemetry.addData("Detected yDisplacement", yDisplacement);
         telemetry.addData("Runtime", runtime.seconds());
         telemetry.update();
+    }
+
+    private void closeInClawWithController(){
+        intake.closeInClaw();
+        gamepad1.setLedColor(1, 0, 0, 2000);
+    }
+
+    private void closeInClawLightWithController(){
+        intake.closeInClawLight();
+        gamepad1.setLedColor(1, 0, 0, 2000);
+    }
+
+    private void openInClawWithController(){
+        intake.openInClaw();
+        gamepad1.setLedColor(0, 1, 0, 2000);
+    }
+
+    private void toggleInClawWithController(){
+        if (intake.toggleInClaw()){
+            gamepad1.setLedColor(1, 0, 0, 2000);
+            return;
+        }
+        gamepad1.setLedColor(0, 1, 0, 2000);
     }
 
     private void servoControl(){
@@ -119,7 +154,7 @@ public class NewStandardDrive extends OpMode {
                 passoffStage = 1;
                 runtime.reset();
                 intake.intakePassoffPos();
-                intake.closeInClaw();
+                closeInClawWithController();
                 slides.vertSlidePassoffPos();
                 slides.horSlidePassoffPos();
             }
@@ -130,6 +165,7 @@ public class NewStandardDrive extends OpMode {
 
         if(passoffStage == 1 && runtime.seconds() > Intake.wristBuffer) {
             intake.intakeAfterPassoffPos();
+            closeInClawLightWithController();
             outtake.openOutClaw();
             outtake.outtakePassoffPos();
             runtime.reset();
@@ -171,13 +207,21 @@ public class NewStandardDrive extends OpMode {
 
         if(gamepad1.right_bumper){
             if(!pressed1rb){
-                intake.toggleInClaw();
+                toggleInClawWithController();
             }
             pressed1rb = true;
         } else {
             pressed1rb = false;
         }
 
+        if(gamepad1.left_bumper){
+            if(!pressed1lb) {
+                drive.switchState();
+            }
+            pressed1lb = true;
+        } else {
+            pressed1lb = false;
+        }
         // Can be Commented Out
         if (gamepad2.cross) {
             outtake.outtakePassoffPos();
@@ -189,8 +233,22 @@ public class NewStandardDrive extends OpMode {
             outtake.outtakePlacePos();
         }
         if (gamepad2.circle) {
-            intake.intakeNeutralPos();
-            outtake.outtakeSpecimenPos();
+            if (!pressed2circle) {
+                switch (specimenPosStage) {
+                    case 0:
+                        intake.intakeNeutralPos();
+                        outtake.outtakeSpecimenPos();
+                        break;
+
+                    case 1:
+                        outtake..
+
+                }
+
+            }
+            pressed2circle = true;
+        } else {
+            pressed2circle = false;
         }
 
 //        if(gamepad2.square){
@@ -207,18 +265,39 @@ public class NewStandardDrive extends OpMode {
             pressed2rb = false;
         }
 
+        if (gamepad2.left_bumper) {
+            if (!pressed2lb) {
+                hangMode = !hangMode;
+                if (hangMode) {
+                    gamepad2.setLedColor(1, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
+                } else {
+                    gamepad2.setLedColor(0, 1, 0, Gamepad.LED_DURATION_CONTINUOUS);
+                }
+            }
+            pressed2lb = true;
+        } else {
+            pressed2lb = false;
+        }
+
         if(gamepad2.square){
             if(!pressed2square) {
-                slides.vertSlideWallPos();
-                runtime.reset();
-                wallPosStage = 1;
+                if(!onWall) {
+                    slides.vertSlideWallPos();
+                    runtime.reset();
+                    wallPosStage = 1;
+                } else {
+                    slides.vertSlideWallPickup();
+                    onWall = false;
+                    wallPosStage = 0;
+                }
             }
-                pressed2square = true;
+            pressed2square = true;
         }else{
             pressed2square = false;
         }
         if(wallPosStage == 1 && runtime.seconds() > Outtake.wallPosBuffer){
             outtake.outtakeWallPos();
+            onWall = true;
             wallPosStage = 0;
         }
     }

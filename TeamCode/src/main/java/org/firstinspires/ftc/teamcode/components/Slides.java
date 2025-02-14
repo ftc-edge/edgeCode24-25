@@ -25,11 +25,17 @@ public class Slides {
     public static int specimenVertSlidePos = 1300;
     public static double gotoSpecimenPosPower = 0.6;
 
-    public static int passoffPos = 180;
+    public static int passoffVertSlidePos = 90;
 
-    public static int wallPosVertSlidePos = 600;
+    public static int wallPosVertSlidePos = 630;
+    public static int wallPickupVertSlideOffset = 600;
+
     public static int CVhorSlidePosOffset = 300;
-    public static double CVhorSlidePosDivisor = 0.05;
+    public static double CVhorSlidePosDivisor = 0.03;
+
+    public static int manualHorSlideSpeed = 10;
+    public static int manualVertSlideSpeed = 35;
+
     public Slides(HardwareMap hardwareMap){
         vertSlide = hardwareMap.get(DcMotorEx.class, "slideMotor");
         vertSlide2 = hardwareMap.get(DcMotorEx.class, "underSlide");

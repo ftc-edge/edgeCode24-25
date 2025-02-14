@@ -37,11 +37,11 @@ public class RedObjectTracking {
 
         switch (colorSetting.toLowerCase()) {
             case "yellow":
-                lowerBound = new Scalar(20, 100, 100);
+                lowerBound = new Scalar(20, 50, 50); // Adjusted for lighter colors
                 upperBound = new Scalar(30, 255, 255);
                 break;
             case "blue":
-                lowerBound = new Scalar(100, 150, 0);
+                lowerBound = new Scalar(100, 50, 50); // Adjusted for lighter colors
                 upperBound = new Scalar(140, 255, 255);
                 break;
             case "red":

@@ -21,6 +21,8 @@ public class Intake {
 
     public static float intakeClawGrabPos = 1;
     
+    public static float intakeClawLightClosePos = 0.12f;
+
     // GROUND POSITIONS: (Wrist, Arm)
     public static float groundWristPos = 0.9f;
     public static float groundLArmPos = 0.1f;
@@ -49,6 +51,8 @@ public class Intake {
     public float wristServoPos;
     public float outShoulderPos;
     public float lArmServoPos;
+
+    public boolean clawState = false; // open is true, close is false
 
     public Intake(HardwareMap hardwareMap){
         rArm = hardwareMap.get(Servo.class, "rArm");
@@ -84,12 +88,17 @@ public class Intake {
 
     public void hangBlock(){inFingPos = intakeClawClosePos;}
 
-    public void toggleInClaw() {
+    public void closeInClawLight(){
+        inFingPos = intakeClawLightClosePos;
+    }
+
+    public boolean toggleInClaw() {
         if (inFingPos == intakeClawOpenPos) {
             closeInClaw();
-        } else {
-            openInClaw();
+            return true;
         }
+        openInClaw();
+        return false;
     }
 
     public void intakeGroundPos() {
