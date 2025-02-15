@@ -49,6 +49,10 @@ public class Intake {
     public static double CVwristPosOffset = 90;
     public static double CVwristPosDivisor = 160.5;
 
+    // Cycle Inwrist Positions
+    private final float[] inWristPositions = {0.16f, 0.34f, 0.52f, 0.7f, 0.88f, 1.0f};
+    private int currentInWristIndex = 0;
+
     public float inFingPos;
     public float wristServoPos;
     public float outShoulderPos;
@@ -80,6 +84,11 @@ public class Intake {
         inFingPos = max(0, min(1, inFingPos));
     }
 
+    private void cycleInWristPosition() {
+        currentInWristIndex = (currentInWristIndex + 1) % inWristPositions.length;
+        wristServoPos = inWristPositions[currentInWristIndex];
+    }
+    
     public void openInClaw() {
         inFingPos = intakeClawOpenPos;
     }
@@ -136,6 +145,10 @@ public class Intake {
     // public void incrementRArm(float increment) {
     //     rArmServoPos += increment;
     // }
+
+    public void setInWrist(float pos){
+        wristServoPos = pos;
+    }
 
     public void setInWristForCV(double angle){
         angle += CVwristPosOffset;

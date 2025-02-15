@@ -24,6 +24,14 @@ def detect_yellow(frame):
     mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
     return mask
 
+# Function to detect blue color in the frame
+def detect_blue(frame):
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    lower_blue = np.array([90, 120, 0])
+    upper_blue = np.array([150, 255, 255])
+    mask = cv2.inRange(hsv, lower_blue, upper_blue)
+    return mask
+
 # Function to find and draw contours, convex hull, and center of mass
 def find_and_draw_contours(frame, mask, angle_queue):
     contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -114,8 +122,10 @@ def main():
 
         if detect_color == 'red':
             mask = detect_red(frame)
-        else:
+        elif detect_color == 'yellow':
             mask = detect_yellow(frame)
+        else:
+            mask = detect_blue(frame)
 
         find_and_draw_contours(frame, mask, angle_queue)
 
@@ -126,7 +136,12 @@ def main():
         if key == ord('q'):
             break
         elif key == ord('t'):
-            detect_color = 'yellow' if detect_color == 'red' else 'red'
+            if detect_color == 'red':
+                detect_color = 'yellow'
+            elif detect_color == 'yellow':
+                detect_color = 'blue'
+            else:
+                detect_color = 'red'
 
     cap.release()
     cv2.destroyAllWindows()

@@ -19,11 +19,11 @@ public class Outtake {
     public float outShoulderPos;
     public float outWristPos = 0f;
 
-    public static float outShoulderPlacePos = 0.11f;
-    public static float outShoulderPassoffPos = 0.665f;
-    public static float outShoulderSpecimenPos = 0.618f;
-    public static float outShoulderHookInPos = 0.6f;
-    public static float outShoulderWallPos = 0.788f;
+    public static float outShoulderPlacePos = 0.06f;
+    public static float outShoulderPassoffPos = 0.615f;
+    public static float outShoulderSpecimenPos = 0.568f;
+    public static float outShoulderHookInPos = 0.55f;
+    public static float outShoulderWallPos = 0.738f;
 
     public static float outWristPassoffPos = 0.354f;
     public static float outWristWallPos = 0.858f;

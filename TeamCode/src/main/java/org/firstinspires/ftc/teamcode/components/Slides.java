@@ -19,7 +19,7 @@ public class Slides {
     public static int VERTSLIDEMINPOS = 0;
     public static int HORSLIDEMINPOS = 0;
 
-    public static int hangModePosition = 1500;
+    public static int hangModePosition = 0;
 
     public static double initialVertSlidePower = 0.5f;
     public static double initialHorSlidePower = 0.5f;
@@ -75,6 +75,11 @@ public class Slides {
 
     private int boundHor(int target){
         return max(min(target, HORSLIDEMAXPOS), HORSLIDEMINPOS);
+    }
+
+    public void resetSlides(){
+        moveVertSlides(0, 1);
+        moveHorSlides(0, 1);
     }
 
     public void moveVertSlides(int target){

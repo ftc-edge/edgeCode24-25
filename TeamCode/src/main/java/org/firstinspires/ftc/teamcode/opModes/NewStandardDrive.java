@@ -38,7 +38,7 @@ public class NewStandardDrive extends OpMode {
     boolean pressed1lb = false;
     boolean pressed1rb = false;
 
-    boolean pressed2x = false;
+    boolean pressed2dpadLeft = false;
     boolean pressed2rb = false;
     boolean pressed2lb = false;
     boolean pressed2circle = false;
@@ -46,6 +46,7 @@ public class NewStandardDrive extends OpMode {
     boolean hangMode = false;
 
     double yDisplacement = -1;
+
 
     @Override
     public void init() {
@@ -74,6 +75,7 @@ public class NewStandardDrive extends OpMode {
         intake.update();
         outtake.update();
         if (hangMode) {
+            slides.horSlidePassoffPos();
             slides.moveVertSlides(Slides.hangModePosition, 1);
         }
     }
@@ -123,16 +125,20 @@ public class NewStandardDrive extends OpMode {
             intake.incrementLArm(0.001f);
         }
 
-        if (gamepad1.dpad_left) {
-            intake.incrementWrist(0.002f);
-        }
-
-
         if(gamepad2.dpad_up){
             outtake.incrementWristPos(0.002f);
         }
         if(gamepad2.dpad_down){
             outtake.incrementWristPos(-0.002f);
+        }
+
+        if (gamepad2.dpad_left) {
+            if (!pressed2dpadLeft) {
+                intake.cycleInWristPosition();
+            }
+            pressed2dpadLeft = true;
+        } else {
+            pressed2dpadLeft = false;
         }
 
         if(gamepad2.dpad_right){
@@ -266,6 +272,7 @@ public class NewStandardDrive extends OpMode {
             if (!pressed2lb) {
                 hangMode = !hangMode;
                 if (hangMode) {
+                    intake.intakePassoffPos();
                     gamepad2.setLedColor(1, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
                 } else {
                     gamepad2.setLedColor(0, 1, 0, Gamepad.LED_DURATION_CONTINUOUS);
