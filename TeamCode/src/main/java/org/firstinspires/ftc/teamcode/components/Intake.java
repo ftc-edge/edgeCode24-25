@@ -84,7 +84,7 @@ public class Intake {
         inFingPos = max(0, min(1, inFingPos));
     }
 
-    private void cycleInWristPosition() {
+    public void cycleInWristPosition() {
         currentInWristIndex = (currentInWristIndex + 1) % inWristPositions.length;
         wristServoPos = inWristPositions[currentInWristIndex];
     }
