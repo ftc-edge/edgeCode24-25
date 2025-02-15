@@ -4,6 +4,7 @@ import static java.lang.Math.max;
 import static java.lang.Math.min;
 
 import com.acmerobotics.roadrunner.trajectory.TrajectoryBuilderKt;
+import com.acmerobotics.roadrunner.trajectory.constraints.TrajectoryVelocityConstraint;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -58,24 +59,22 @@ public class newAuto extends LinearOpMode {
 
         Pose2d startPose = new Pose2d(0, -65, Math.toRadians(auto.startingHeading));
         drive.setPoseEstimate(startPose);
+
+        waitForStart();
+
         intake = new Intake(hardwareMap);
         outtake = new Outtake(hardwareMap);
         slides = new Slides(hardwareMap);
         auto = new Auto();
-        waitForStart();
 
 //        outtake.closeOutClaw();
 //        outtake.outtakeSpecimenPos();
 //        slides.vertSlidesSpecimenPos();
 
-        drive.updatePoseEstimate();
-        TrajectorySequence traj1 = drive.trajectorySequenceBuilder(startPose)
-                .lineTo(new Vector2d(auto.specPosX, auto.specPosY))
-                .build();
 
         drive.updatePoseEstimate();
-        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .lineTo(new Vector2d(auto.specPosX, auto.hookInY))
+        TrajectorySequence smallForward = drive.trajectorySequenceBuilder(new Pose2d(auto.specPosX, auto.specPosY, auto.startingHeading))
+                .forward(auto.smallForwardAmount)
                 .build();
 
         drive.updatePoseEstimate();
@@ -101,34 +100,49 @@ public class newAuto extends LinearOpMode {
                 .build();
         drive.updatePoseEstimate();
         TrajectorySequence traj6 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .lineTo(new Vector2d(auto.sample1X, auto.samplePushY))
+                .lineTo(new Vector2d(auto.sample1X, auto.mitchellPosY))
                 //.lineTo(new Vector2d(auto.sample1X, auto.mitchellPosY))
                 .build();
-
+        drive.updatePoseEstimate();
         TrajectorySequence buffer = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
                 .waitSeconds(5)
                         .build();
 
-        lArm.setPosition(0.2);
-        rArm.setPosition(0.8);
+        TrajectorySequence initTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                        .lineTo(new Vector2d(auto.specPosX, auto.initTrajY))
+                                .build();
+
+        intake.intakeNeutralPos();
+        intake.update();
         outtake.closeOutClaw();
-        outtake.outtakeHookInPos();
-        outtake.update();
-        drive.followTrajectorySequence(traj1);
-        drive.updatePoseEstimate();
-        slides.vertSlidesSpecimenPos();
         outtake.outtakeSpecimenPos();
         outtake.update();
+        slides.vertSlidesSpecimenPos();
+        drive.updatePoseEstimate();
+        TrajectorySequence traj2 = drive.trajectorySequenceBuilder(startPose)
+                .lineTo(new Vector2d(auto.specPosX, auto.hookInY))
+                .build();
+        drive.followTrajectorySequence(initTraj);
+        drive.updatePoseEstimate();
+        TrajectorySequence traj1 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .lineToConstantHeading(new Vector2d(auto.specPosX, auto.specPosY))
+                .build();
+        drive.followTrajectorySequence(traj1);
+        drive.updatePoseEstimate();
+        slides.vertSlideHookInPos();
 
         drive.updatePoseEstimate();
         drive.followTrajectorySequence(buffer);
-        drive.updatePoseEstimate();
-        drive.followTrajectorySequence(traj2);
         drive.updatePoseEstimate();
 
         outtake.openOutClaw();
         outtake.update();
         slides.vertSlideWallPos();
+
+        drive.updatePoseEstimate();
+        drive.followTrajectorySequence(traj2);
+        drive.updatePoseEstimate();
+
 
         drive.followTrajectorySequence(traj3);
         drive.updatePoseEstimate();
@@ -141,16 +155,24 @@ public class newAuto extends LinearOpMode {
 
         outtake.closeOutClaw();
         outtake.update();
-        slides.moveVertSlides(850, 1);
+        slides.vertSlideWallPickup();
 
+        outtake.outtakeSpecimenPos();
+        outtake.update();
+        slides.vertSlidesSpecimenPos();
 
         drive.updatePoseEstimate();
         drive.followTrajectorySequence(traj5);
         drive.updatePoseEstimate();
 
+        slides.vertSlideHookInPos();
+
+        drive.followTrajectorySequence(buffer);
+
         drive.updatePoseEstimate();
         drive.followTrajectorySequence(traj6);
         drive.updatePoseEstimate();
+
 
 
         }

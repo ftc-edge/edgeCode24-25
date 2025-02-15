@@ -17,11 +17,11 @@ public class Intake {
 
     // CLAWS (Open/Close)
     public static float intakeClawOpenPos = 0.0f;
-    public static float intakeClawClosePos = 0.135f;
+    public static float intakeClawClosePos = 0.2f;
 
     public static float intakeClawGrabPos = 1;
     
-    public static float intakeClawLightClosePos = 0.12f;
+    public static float intakeClawLightClosePos = 0.14f;
 
     // GROUND POSITIONS: (Wrist, Arm)
     public static float groundWristPos = 0.9f;
@@ -33,7 +33,7 @@ public class Intake {
     // public static float neutralRArmPos = 0.2f;
 
     // PASSOFF POSITIONS: (Wrist, Arm)
-    public static float passoffLArmPos = 0.755f;
+    public static float passoffLArmPos = 0.686f;
     // public static float passoffRArmPos = 0.64f;
     public static float passoffWristPos = 0.816f;
 
@@ -42,8 +42,10 @@ public class Intake {
 
     public static double wristBuffer = 0.25;
 
-    // CV Tuning
+    public static double clawHangBuffer = 0.5;
 
+
+    // CV Tuning
     public static double CVwristPosOffset = 90;
     public static double CVwristPosDivisor = 160.5;
 
