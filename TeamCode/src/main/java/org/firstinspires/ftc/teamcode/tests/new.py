@@ -16,6 +16,14 @@ def detect_red(frame):
     mask = mask1 + mask2
     return mask
 
+# Function to detect yellow color in the frame
+def detect_yellow(frame):
+    hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+    lower_yellow = np.array([18, 60, 60])
+    upper_yellow = np.array([40, 255, 255])
+    mask = cv2.inRange(hsv, lower_yellow, upper_yellow)
+    return mask
+
 # Function to find and draw contours, convex hull, and center of mass
 def find_and_draw_contours(frame, mask, angle_queue):
     contours, _ = cv2.findContours(mask, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
@@ -62,12 +70,13 @@ def find_and_draw_contours(frame, mask, angle_queue):
         cv2.drawContours(frame, [box], 0, (255, 0, 0), 2)  # Draw the rectangle in blue
 
         # Get the angle of the rectangle
-        angle = rect[2]       
+        width, height = rect[1]
+        angle = rect[2]
 
-        if rect[1][0] < rect[1][1]:
-            detected_angle = rect[2] + 90
+        if width < height:
+            detected_angle = angle + 90
         else:
-            detected_angle = rect[2]
+            detected_angle = angle
 
         angle_queue.append(detected_angle)
         if len(angle_queue) > 5:
@@ -86,15 +95,6 @@ def find_and_draw_contours(frame, mask, angle_queue):
         # Draw the average point
         cv2.circle(frame, (avg_x, avg_y), 5, (255, 255, 0), -1)  # Draw average point in cyan
 
-        avg_rect_y = np.mean(box[:, 1])
-
-        # Calculate the average between the yellow dot and the average coordinate of the rectangle
-        avg_x = int((cX + avg_rect_x) / 2)
-        avg_y = int((new_cY + avg_rect_y) / 2)
-
-        # Draw the average point
-        cv2.circle(frame, (avg_x, avg_y), 5, (255, 255, 0), -1)  # Draw average point in cyan
-
         # Draw a vector from the cyan point in the direction of the angle
         length = 50  # Length of the vector
         angle_rad = np.deg2rad(rolling_avg_angle)
@@ -104,21 +104,29 @@ def find_and_draw_contours(frame, mask, angle_queue):
 
 # Main function to capture video and process frames
 def main():
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0, cv2.CAP_DSHOW)
     angle_queue = deque()
+    detect_color = 'yellow'
     while True:
         ret, frame = cap.read()
         if not ret:
             break
 
-        mask = detect_red(frame)
+        if detect_color == 'red':
+            mask = detect_red(frame)
+        else:
+            mask = detect_yellow(frame)
+
         find_and_draw_contours(frame, mask, angle_queue)
 
         cv2.imshow('Frame', frame)
         cv2.imshow('Mask', mask)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        key = cv2.waitKey(1) & 0xFF
+        if key == ord('q'):
             break
+        elif key == ord('t'):
+            detect_color = 'yellow' if detect_color == 'red' else 'red'
 
     cap.release()
     cv2.destroyAllWindows()

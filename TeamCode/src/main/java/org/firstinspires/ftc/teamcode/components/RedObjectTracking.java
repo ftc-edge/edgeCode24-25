@@ -32,26 +32,30 @@ public class RedObjectTracking {
     public static double cameraFocalLength = 0.367;
 
     public RedObjectTracking(HardwareMap hardwareMap){
-        Scalar lowerBound;
-        Scalar upperBound;
+        Scalar lowerBound1;
+        Scalar upperBound1;
+        Scalar lowerBound2 = null;
+        Scalar upperBound2 = null;
 
         switch (colorSetting.toLowerCase()) {
             case "yellow":
-                lowerBound = new Scalar(20, 50, 50); // Adjusted for lighter colors
-                upperBound = new Scalar(30, 255, 255);
+                lowerBound1 = new Scalar(20, 50, 50); // Adjusted for lighter colors
+                upperBound1 = new Scalar(30, 255, 255);
                 break;
             case "blue":
-                lowerBound = new Scalar(100, 50, 50); // Adjusted for lighter colors
-                upperBound = new Scalar(140, 255, 255);
+                lowerBound1 = new Scalar(100, 50, 50); // Adjusted for lighter colors
+                upperBound1 = new Scalar(140, 255, 255);
                 break;
             case "red":
             default:
-                lowerBound = new Scalar(0, 50, 50);
-                upperBound = new Scalar(10, 255, 255);
+                lowerBound1 = new Scalar(0, 50, 50);
+                upperBound1 = new Scalar(10, 255, 255);
+                lowerBound2 = new Scalar(170, 50, 50);
+                upperBound2 = new Scalar(180, 255, 255);
                 break;
         }
 
-        redPipeline = new RedPipeline(lowerBound, upperBound);
+        redPipeline = new RedPipeline(lowerBound1, upperBound1, lowerBound2, upperBound2);
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier(
                 "cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -75,24 +79,36 @@ public class RedObjectTracking {
         private final List<MatOfPoint> contours = new ArrayList<>();
         private Point centerPoint = new Point(-1, -1);
         private double detectedAngle = 0.0;
-        private Scalar lowerBound;
-        private Scalar upperBound;
+        private Scalar lowerBound1;
+        private Scalar upperBound1;
+        private Scalar lowerBound2;
+        private Scalar upperBound2;
 
-        public RedPipeline(Scalar lowerBound, Scalar upperBound) {
-            this.lowerBound = lowerBound;
-            this.upperBound = upperBound;
+        public RedPipeline(Scalar lowerBound1, Scalar upperBound1, Scalar lowerBound2, Scalar upperBound2) {
+            this.lowerBound1 = lowerBound1;
+            this.upperBound1 = upperBound1;
+            this.lowerBound2 = lowerBound2;
+            this.upperBound2 = upperBound2;
         }
 
         public Mat processFrame(Mat input) {
             Mat hsv = new Mat();
+            Mat mask1 = new Mat();
+            Mat mask2 = new Mat();
             Mat mask = new Mat();
             Mat hierarchy = new Mat();
 
             // Convert image to HSV
             Imgproc.cvtColor(input, hsv, Imgproc.COLOR_RGB2HSV);
 
-            // Create mask for the selected color
-            Core.inRange(hsv, lowerBound, upperBound, mask);
+            // Create masks for the selected color ranges
+            Core.inRange(hsv, lowerBound1, upperBound1, mask1);
+            if (lowerBound2 != null && upperBound2 != null) {
+                Core.inRange(hsv, lowerBound2, upperBound2, mask2);
+                Core.add(mask1, mask2, mask);
+            } else {
+                mask = mask1;
+            }
 
             // Find contours
             contours.clear();
@@ -164,6 +180,8 @@ public class RedObjectTracking {
 
             // Release memory
             hsv.release();
+            mask1.release();
+            mask2.release();
             mask.release();
             hierarchy.release();
 
