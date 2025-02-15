@@ -126,9 +126,7 @@ public class NewStandardDrive extends OpMode {
         if (gamepad1.dpad_left) {
             intake.incrementWrist(0.002f);
         }
-        if (gamepad1.dpad_right) {
-            intake.incrementWrist(-0.002f);
-        }
+
 
         if(gamepad2.dpad_up){
             outtake.incrementWristPos(0.002f);
@@ -174,18 +172,13 @@ public class NewStandardDrive extends OpMode {
             passoffStage = 2;
         }
 
-        if(passoffStage == 2 && runtime.seconds() > Intake.wristBuffer) {
-            intake.hangBlock();
+        if(passoffStage == 2 && runtime.seconds() > Intake.clawHangBuffer){
+            outtake.closeOutClaw();
             runtime.reset();
             passoffStage = 3;
         }
-        if(passoffStage == 3 && runtime.seconds() > Outtake.clawBuffer/2){
-            outtake.closeOutClaw();
-            runtime.reset();
-            passoffStage = 4;
-        }
 
-        if(passoffStage == 4 && runtime.seconds() > Intake.wristBuffer) {
+        if(passoffStage == 3 && runtime.seconds() > Intake.wristBuffer) {
             intake.openInClaw();
             intake.intakeNeutralPos();
             passoffStage = 0;
