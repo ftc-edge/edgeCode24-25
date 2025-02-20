@@ -38,6 +38,7 @@ public class NewStandardDrive extends OpMode {
     boolean pressed1lb = false;
     boolean pressed1rb = false;
 
+    boolean pressed1dpadUp = false;
     boolean pressed2dpadLeft = false;
     boolean pressed2rb = false;
     boolean pressed2lb = false;
@@ -90,6 +91,7 @@ public class NewStandardDrive extends OpMode {
         telemetry.addData("inLArm", intake.lArmServoPos);
         telemetry.addData("detectedAngle", cv.getDetectedAngle());
         telemetry.addData("Detected yDisplacement", yDisplacement);
+        telemetry.addData("hangMode", hangMode);
         telemetry.addData("Runtime", runtime.seconds());
         telemetry.update();
     }
@@ -121,9 +123,9 @@ public class NewStandardDrive extends OpMode {
         if (gamepad1.dpad_down) {
             intake.incrementLArm(-0.001f);
         }
-        if (gamepad1.dpad_up) {
-            intake.incrementLArm(0.001f);
-        }
+//        if (gamepad1.dpad_up) {
+//            intake.incrementLArm(0.001f);
+//        }
 
         if(gamepad2.dpad_up){
             outtake.incrementWristPos(0.002f);
@@ -132,7 +134,7 @@ public class NewStandardDrive extends OpMode {
             outtake.incrementWristPos(-0.002f);
         }
 
-        if (gamepad2.dpad_left) {
+        if (gamepad1.dpad_left) {
             if (!pressed2dpadLeft) {
                 intake.cycleInWristPosition();
             }
@@ -171,20 +173,25 @@ public class NewStandardDrive extends OpMode {
 
         if(passoffStage == 1 && runtime.seconds() > Intake.wristBuffer) {
             intake.intakeAfterPassoffPos();
-            closeInClawLightWithController();
             outtake.openOutClaw();
             outtake.outtakePassoffPos();
             runtime.reset();
             passoffStage = 2;
         }
 
-        if(passoffStage == 2 && runtime.seconds() > Intake.clawHangBuffer){
-            outtake.closeOutClaw();
+        if(passoffStage == 2 && runtime.seconds() > Intake.beforeLightClawBuffer) {
+            closeInClawLightWithController();
             runtime.reset();
             passoffStage = 3;
         }
 
-        if(passoffStage == 3 && runtime.seconds() > Intake.wristBuffer) {
+        if(passoffStage == 3 && runtime.seconds() > Intake.clawHangBuffer){
+            outtake.closeOutClaw();
+            runtime.reset();
+            passoffStage = 4;
+        }
+
+        if(passoffStage == 4 && runtime.seconds() > Intake.wristBuffer) {
             intake.openInClaw();
             intake.intakeNeutralPos();
             passoffStage = 0;
@@ -193,17 +200,27 @@ public class NewStandardDrive extends OpMode {
         if (gamepad1.circle) {
             intake.intakeNeutralPos();
         }
+
         yDisplacement = cv.getProjection().y;
         if (gamepad1.square) {
             if (!pressed1square){
-                intake.setInWristForCV(cv.getDetectedAngle());
                 if (cv.getProjection().validProjection){
-                    slides.setHorSlidesForCV(yDisplacement);
+                    intake.setInWristForCV(cv.getDetectedAngle());
                 }
             }
             pressed1square = true;
         } else {
             pressed1square = false;
+        }
+        if(gamepad1.dpad_up) {
+            if(!pressed1dpadUp) {
+                if (cv.getProjection().validProjection){
+                    slides.setHorSlidesForCV(yDisplacement);
+                }
+            }
+            pressed1dpadUp = true;
+        } else {
+            pressed1dpadUp = false;
         }
 
         if(gamepad1.right_bumper){
@@ -273,6 +290,7 @@ public class NewStandardDrive extends OpMode {
                 hangMode = !hangMode;
                 if (hangMode) {
                     intake.intakePassoffPos();
+                    slides.horSlidePassoffPos();
                     gamepad2.setLedColor(1, 0, 0, Gamepad.LED_DURATION_CONTINUOUS);
                 } else {
                     gamepad2.setLedColor(0, 1, 0, Gamepad.LED_DURATION_CONTINUOUS);

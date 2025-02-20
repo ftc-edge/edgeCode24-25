@@ -72,10 +72,6 @@ public class newAuto extends LinearOpMode {
                 .forward(auto.smallForwardAmount)
                 .build();
 
-        TrajectorySequence initTraj = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                        .lineTo(new Vector2d(auto.specPosX, auto.initTrajY))
-                                .build();
-
         intake.intakeNeutralPos();
         intake.update();
 
@@ -88,11 +84,13 @@ public class newAuto extends LinearOpMode {
         TrajectorySequence traj2 = drive.trajectorySequenceBuilder(startPose)
                 .lineTo(new Vector2d(auto.specPosX, auto.hookInY))
                 .build();
-        
-        drive.followTrajectorySequence(initTraj);
-        drive.updatePoseEstimate();
 
+        drive.updatePoseEstimate();
         TrajectorySequence traj1 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .lineToConstantHeading(new Vector2d(auto.specPosX, auto.hookInY))
+                .lineToConstantHeading(new Vector2d(auto.specPosX, auto.specPosY1))
+                .lineToConstantHeading(new Vector2d(auto.specPosX, auto.specPosY2))
+//                .waitSeconds(0.1)
                 .lineToConstantHeading(new Vector2d(auto.specPosX, auto.specPosY))
                 .build();
         drive.followTrajectorySequence(traj1);
@@ -101,13 +99,14 @@ public class newAuto extends LinearOpMode {
 
         drive.updatePoseEstimate();
         TrajectorySequence buffer = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .waitSeconds(5)
+                .waitSeconds(0.8)
                 .build();
         
         drive.followTrajectorySequence(buffer);
         drive.updatePoseEstimate();
 
         outtake.openOutClaw();
+        outtake.outtakeWallPos();
         outtake.update();
         slides.vertSlideWallPos();
 
@@ -124,15 +123,17 @@ public class newAuto extends LinearOpMode {
                 .lineTo(new Vector2d(auto.sampleGrabX, auto.sampleGrabY))
                 .lineTo(new Vector2d(auto.sample1X, auto.sampleGrabY))
                 .lineTo(new Vector2d(auto.sample1X, auto.samplePushY))
-                .lineTo(new Vector2d(auto.sample1X, auto.sampleGrabY))
-                .lineTo(new Vector2d(auto.sample1X + auto.sampleGrabIncrementX, auto.sampleGrabY))
-                .lineTo(new Vector2d(auto.sample1X + auto.sampleGrabIncrementX, auto.samplePushY))
+//                .lineTo(new Vector2d(auto.sample1X, auto.sampleGrabY))
+//                .lineTo(new Vector2d(auto.sample1X + auto.sampleGrabIncrementX, auto.sampleGrabY))
+//                .lineTo(new Vector2d(auto.sample1X + auto.sampleGrabIncrementX, auto.samplePushY))
                 .build();
 
         drive.followTrajectorySequence(traj3);
 
         drive.updatePoseEstimate();
         TrajectorySequence traj4 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .lineTo(new Vector2d(auto.sample1X, auto.mitchellAdjustPosY))
+                .lineTo(new Vector2d(auto.sample1X, (Auto.mitchellAdjustPosY + Auto.mitchellPosY) / 2))
                 .lineTo(new Vector2d(auto.sample1X, auto.mitchellPosY))
                 .build();
 
@@ -142,44 +143,55 @@ public class newAuto extends LinearOpMode {
         outtake.outtakeWallPos();
         outtake.update();
         drive.updatePoseEstimate();
-        buffer = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .waitSeconds(5)
+        TrajectorySequence buffer1 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .waitSeconds(0.5)
                 .build();
         
-        drive.followTrajectorySequence(buffer);
+        drive.followTrajectorySequence(buffer1);
 
         outtake.closeOutClaw();
         outtake.update();
+        drive.updatePoseEstimate();
+        TrajectorySequence buffer2 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .waitSeconds(0.7)
+                .build();
+
+        drive.followTrajectorySequence(buffer2);
         slides.vertSlideWallPickup();
 
+        drive.updatePoseEstimate();
+        buffer2 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .waitSeconds(0.5)
+                .build();
+        drive.followTrajectorySequence(buffer2);
         outtake.outtakeSpecimenPos();
         outtake.update();
         slides.vertSlidesSpecimenPos();
 
+
         drive.updatePoseEstimate();
         TrajectorySequence traj5 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .lineTo(new Vector2d(auto.specPosX, auto.hookInY))
-                .lineTo(new Vector2d(auto.specPosX, auto.specPosY))
+                .lineToConstantHeading(new Vector2d(Auto.firstPlacePosX, Auto.firstPlacePosY))
                 .build();
         drive.followTrajectorySequence(traj5);
         drive.updatePoseEstimate();
 
+        drive.followTrajectorySequence(traj1);
         slides.vertSlideHookInPos();
 
         drive.updatePoseEstimate();
-        buffer = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .waitSeconds(5)
-                .build();
         drive.followTrajectorySequence(buffer);
 
+        outtake.openOutClaw();
         drive.updatePoseEstimate();
-        TrajectorySequence traj6 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
-                .lineTo(new Vector2d(auto.sample1X, auto.mitchellPosY))
-                //.lineTo(new Vector2d(auto.sample1X, auto.mitchellPosY))
+        buffer2 = drive.trajectorySequenceBuilder(drive.getPoseEstimate())
+                .waitSeconds(0.7)
                 .build();
-        drive.followTrajectorySequence(traj6);
+        drive.followTrajectorySequence(buffer2);
 
         slides.resetSlides();
+        drive.updatePoseEstimate();
+        drive.followTrajectorySequence(traj4);
         }
     }
 

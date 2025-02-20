@@ -29,9 +29,9 @@ public class Slides {
 
     public static int hookInVertSlidePos = 2900;
 
-    public static int passoffVertSlidePos = 90;
+    public static int passoffVertSlidePos = 160;
 
-    public static int wallPosVertSlidePos = 595;
+    public static int wallPosVertSlidePos = 635;
     public static int wallPickupVertSlideOffset = 600;
     public static int wallPosClawClearanceOffset = 250;
 
@@ -40,6 +40,12 @@ public class Slides {
 
     public static int manualHorSlideSpeed = 10;
     public static int manualVertSlideSpeed = 35;
+
+    public static int toggleUnderSlide = 1;
+    public static int toggleSlideMotor = 1;
+
+    public static int reverseSlideMotor = 1;
+    public static int reverseUnderSlide = 0;
 
     public Slides(HardwareMap hardwareMap){
         vertSlide = hardwareMap.get(DcMotorEx.class, "slideMotor");
@@ -50,16 +56,25 @@ public class Slides {
         vertSlide2.setMode(DcMotorEx.RunMode.STOP_AND_RESET_ENCODER);
         horSlide.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        vertSlide.setTargetPosition(0);
-        vertSlide.setDirection(DcMotorEx.Direction.REVERSE);
-        vertSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        vertSlide.setPower(initialVertSlidePower);
-        vertSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        if(toggleSlideMotor == 1){
+            vertSlide.setTargetPosition(0);
+            if (reverseSlideMotor == 1){
+                vertSlide.setDirection(DcMotorEx.Direction.REVERSE);
+            }
+            vertSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+            vertSlide.setPower(initialVertSlidePower);
+            vertSlide.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        }
 
-        vertSlide2.setTargetPosition(0);
-        vertSlide2.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
-        vertSlide2.setPower(initialVertSlidePower);
-        vertSlide2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        if (toggleUnderSlide == 1){
+            vertSlide2.setTargetPosition(0);
+            if (reverseUnderSlide == 1) {
+                vertSlide2.setDirection(DcMotorEx.Direction.REVERSE);
+            }
+            vertSlide2.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
+            vertSlide2.setPower(initialVertSlidePower);
+            vertSlide2.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.BRAKE);
+        }
 
         horSlide.setTargetPosition(0);
         horSlide.setMode(DcMotorEx.RunMode.RUN_TO_POSITION);
@@ -90,15 +105,23 @@ public class Slides {
 
     public void moveVertSlides(int target, double power){
         target = boundVert(target);
-        vertSlide.setPower(power);
-        vertSlide2.setPower(power);
-        vertSlide.setTargetPosition(target);
-        vertSlide2.setTargetPosition(target);
+        if(toggleSlideMotor == 1){
+            vertSlide.setPower(power);
+            vertSlide.setTargetPosition(target);
+        }
+        if(toggleUnderSlide == 1){
+            vertSlide2.setTargetPosition(target);
+            vertSlide2.setPower(power);
+        }
     }
 
     public void vertIncrement(int increment){
-        vertSlide.setTargetPosition(boundVert(vertSlide.getTargetPosition() + increment));
-        vertSlide2.setTargetPosition(boundVert(vertSlide2.getTargetPosition() + increment));
+        if(toggleSlideMotor == 1){
+            vertSlide.setTargetPosition(boundVert(vertSlide.getTargetPosition() + increment));
+        }
+        if(toggleUnderSlide == 1){
+            vertSlide2.setTargetPosition(boundVert(vertSlide2.getTargetPosition() + increment));
+        }
     }
 
     public void moveHorSlides(int target, double power){
@@ -144,6 +167,12 @@ public class Slides {
     }
 
     public int getVertSlidePos(){
+        if (toggleSlideMotor != 1) {
+            if (toggleUnderSlide == 1) {
+                return vertSlide2.getTargetPosition();
+            }
+            return 0;
+        }
         return vertSlide.getTargetPosition();
     }
 

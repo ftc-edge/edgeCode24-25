@@ -29,22 +29,22 @@ public class Intake {
     // public static float groundRArmPos = 0.0f;
 
     // NEUTRAL POSITIONS: (Wrist, Arm)
-    public static float neutralLArmPos = 0.2f;
+    public static float neutralLArmPos = 0.3f;
     // public static float neutralRArmPos = 0.2f;
 
     // PASSOFF POSITIONS: (Wrist, Arm)
-    public static float passoffLArmPos = 0.686f;
+    public static float passoffLArmPos = 0.713f;
     // public static float passoffRArmPos = 0.64f;
     public static float passoffWristPos = 0.816f;
 
     // AFTER PASSOFF TIMER:
     public static float afterPassoffWristPos = 0.604f;
 
-    public static double wristBuffer = 0.25;
+    public static double wristBuffer = 0.5;
 
     public static double clawHangBuffer = 0.5;
 
-
+    public static double beforeLightClawBuffer = 1;
     // CV Tuning
     public static double CVwristPosOffset = 90;
     public static double CVwristPosDivisor = 160.5;
